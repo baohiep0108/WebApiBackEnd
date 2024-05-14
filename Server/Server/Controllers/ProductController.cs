@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectFunctionalTesting.Service;
-using System.ComponentModel;
 using WebApi.Data;
 using WebApi.Model;
 using WebApi.Repository.Interfaces;
 
 namespace ProjectFunctionalTesting.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
@@ -100,6 +100,7 @@ namespace ProjectFunctionalTesting.Controllers
                 return BadRequest("Failed to create product: " + ex.Message);
             }
         }
+        [AllowAnonymous]
         [HttpGet]
         [Route("GetImage")]
         public IActionResult GetProduct(string name)
@@ -129,10 +130,17 @@ namespace ProjectFunctionalTesting.Controllers
                 {
                     return BadRequest("Category does not exist.");
                 }
-                string imagePath = await UploadImg.UploadImageAsync(product.Img, "Product");
                 var productNew = _mapper.Map<Product>(product);
-                productNew.CategoryId = product.CategoryId;
-                productNew.Img = imagePath;
+                if (product.Img !=null)
+                {
+                    string imagePath = await UploadImg.UploadImageAsync(product.Img, "Product");
+                    productNew.Img = imagePath;
+                }
+                else
+                {
+                    productNew.Img = productcheck.Img;
+                }
+                productNew.CategoryId = product.CategoryId;           
                 await _productRepository.UpAsync(productNew);
                 return Ok(productNew);
             }

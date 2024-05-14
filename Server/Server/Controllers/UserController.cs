@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ProjectFunctionalTesting.Service;
 using ProjectFunctionalTesting.ViewModel;
@@ -9,6 +10,7 @@ using WebApi.Repository.Interfaces;
 
 namespace ProjectFunctionalTesting.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -36,7 +38,15 @@ namespace ProjectFunctionalTesting.Controllers
                 user.Gender = model.Gender;
                 user.DateOfBirth = model.DateOfBirth;
                 user.PhoneNumber = model.PhoneNumber;
-                user.PasswordHash = model.Password;
+                if (!string.IsNullOrEmpty(model.Password))
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var passwordChangeResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                    if (!passwordChangeResult.Succeeded)
+                    {
+                        return BadRequest(passwordChangeResult.Errors);
+                    }
+                }
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
                 {
@@ -76,6 +86,7 @@ namespace ProjectFunctionalTesting.Controllers
 
             }
         }
+        [AllowAnonymous]
         [HttpGet]
         [Route("GetImage")]
         public IActionResult GetUser(string name)

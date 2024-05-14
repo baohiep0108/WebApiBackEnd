@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +12,7 @@ using WebApi.Helper;
 
 namespace ProjectFunctionalTesting.Controllers
 {
+   
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticateController : ControllerBase
@@ -26,12 +28,13 @@ namespace ProjectFunctionalTesting.Controllers
             this.roleManager = roleManager;
             _configuration = configuration;
         }
-
+       
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginVM model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
+
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await userManager.GetRolesAsync(user);
@@ -42,7 +45,6 @@ namespace ProjectFunctionalTesting.Controllers
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(ClaimTypes.Authentication, user.Id)
                 };
-
                 foreach (var userRole in userRoles)
                 {
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
@@ -66,7 +68,7 @@ namespace ProjectFunctionalTesting.Controllers
                 });
             }
             return Unauthorized();
-        }
+        }   
 
         [HttpPost]
         [Route("register")]
@@ -99,7 +101,6 @@ namespace ProjectFunctionalTesting.Controllers
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
-
         [HttpPost]
         [Route("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterVM model)
@@ -131,6 +132,7 @@ namespace ProjectFunctionalTesting.Controllers
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         [Route("get-Acc")]
         public async Task<IActionResult> GetAcc()
         {
@@ -166,12 +168,11 @@ namespace ProjectFunctionalTesting.Controllers
             }
             return Ok(user);
         }
-
         // đang bị lỗi truyền dữ liệu bên phía frontend
         [HttpPut]
-        [Route("Update-user/{id}")]
-        public async Task<IActionResult> UpdateUser( UserVM model,string id)
-            {
+        [Route("update-user/{id}")]
+        public async Task<IActionResult> UpdateUser(UserVM model, string id)
+        {
             try
             {
                 var user = await userManager.FindByIdAsync(id);
@@ -179,11 +180,23 @@ namespace ProjectFunctionalTesting.Controllers
                 {
                     return NotFound("User not found.");
                 }
+
                 user.UserName = model.UserName;
                 user.Email = model.Email;
-                user.Address= model.Address;
-                user.PasswordHash= model.PasswordHash;
+                user.Address = model.Address;
                 user.PhoneNumber = model.PhoneNumber;
+
+                // Only update the password if a new password is provided
+                if (!string.IsNullOrEmpty(model.PasswordHash))
+                {
+                    var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                    var passwordChangeResult = await userManager.ResetPasswordAsync(user, token, model.PasswordHash);
+                    if (!passwordChangeResult.Succeeded)
+                    {
+                        return BadRequest(passwordChangeResult.Errors);
+                    }
+                }
+
                 var result = await userManager.UpdateAsync(user);
                 if (!result.Succeeded)
                 {
@@ -193,11 +206,9 @@ namespace ProjectFunctionalTesting.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Failed to update category: " + ex.Message);
-
+                return BadRequest("Failed to update user: " + ex.Message);
             }
         }
-
 
         [HttpDelete]
         [Route("delete-user/{id}")]
