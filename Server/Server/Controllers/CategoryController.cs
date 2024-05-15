@@ -5,7 +5,7 @@ using WebApi.Model;
 using WebApi.Repository.Interfaces;
 namespace WebApi.Controllers
 {
-    
+    [Authorize]
     [Route("api/[controller]")]
         [ApiController]
         public class CategoryController : ControllerBase
@@ -16,7 +16,6 @@ namespace WebApi.Controllers
             {
                 _categoryRepository = categoryRepository;
             }
-       
         [HttpGet]
         [Route("Index")]
         public async Task<IActionResult> GetAllCateroryAsync()

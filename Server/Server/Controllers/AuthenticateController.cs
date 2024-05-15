@@ -12,7 +12,7 @@ using WebApi.Helper;
 
 namespace ProjectFunctionalTesting.Controllers
 {
-   
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticateController : ControllerBase
@@ -28,7 +28,7 @@ namespace ProjectFunctionalTesting.Controllers
             this.roleManager = roleManager;
             _configuration = configuration;
         }
-       
+        [AllowAnonymous]
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginVM model)
@@ -68,8 +68,8 @@ namespace ProjectFunctionalTesting.Controllers
                 });
             }
             return Unauthorized();
-        }   
-
+        }
+        [AllowAnonymous]   
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterVM model)
