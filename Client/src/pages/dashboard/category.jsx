@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import Instance from "@/configs/instance.js";
 import {useNavigate} from "react-router-dom";
+import {toast, ToastContainer} from "react-toastify";
 export  function Category() {
     const [category, setCategory] = useState([]);
     const [newCategoryName, setNewCategoryName] = useState(null);
@@ -18,33 +19,44 @@ export  function Category() {
             })
             .catch((err) => console.log(err));
     };
-    const handleDeleteCategory = (categoryId) => {
-        Instance
-            .delete(`/api/Category/${categoryId}`)
-            .then(() => {
-                fetchCategories();
-            })
-            .catch((err) => console.log(err));
-    };
     const handCreateCategory = () => {
-        const data = { categoryName: newCategoryName }; // Prepare the data to send
+        const data = { categoryName: newCategoryName };
         Instance.post('/api/Category/Create', data)
             .then(() => {
+                toast.success("Add category successfully");
                 fetchCategories();
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                toast.error("Failed to add category");
+            });
     }
 
     const handleEditCategory = (categoryId) => {
         navigate(`edit/${categoryId}`);
     }
+
+    const handleDeleteCategory = (categoryId) => {
+        Instance
+            .delete(`/api/Category/${categoryId}`)
+            .then(() => {
+                toast.success("Delete category successfully");
+                fetchCategories();
+            })
+            .catch((err) => {
+                console.log(err);
+                toast.error("Failed to delete category");
+            });
+    };
     const handleToggleForm = () => {
         setShowForm(!showForm);
     };
     return (
         <div className="mt-12 mb-8 flex flex-col gap-12">
+            <ToastContainer/>
             <Card>
                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+
                     <div className="flex flex-col">
                         <div className="flex justify-between items-center mb-3">
                             <button
@@ -116,7 +128,7 @@ export  function Category() {
                                     </Typography>
                                 </td>
 
-                                <td className="border-b border-blue-gray-50 py-3 px-5">
+                                <td className="border-b border-blue-gray-50 py-3 px-5 flex">
 
                                     <button
                                         className="text-xs font-semibold text-white bg-yellow-500 hover:bg-yellow-600 py-1 px-2 rounded"

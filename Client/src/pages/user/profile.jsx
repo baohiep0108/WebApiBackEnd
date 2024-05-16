@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Instance from "@/configs/instance.js";
 import AuthIdUser from "@/configs/AuthIdUser.js";
 import { Link } from "react-router-dom";
-
+import  userProfile from "/public/img/user-profile.jpg"
 function Profile() {
     const [userData, setUserData] = useState(null);
     const id = AuthIdUser();
@@ -12,6 +12,7 @@ function Profile() {
             .then((response) => {
                 const dataUser = response.data;
                 setUserData(dataUser);
+
             })
             .catch((error) => console.log(error));
     }
@@ -21,6 +22,7 @@ function Profile() {
     }, []);
     return (
         <div className="bg-gray-50 min-h-screen flex justify-center">
+
             <div className="max-w-2xl w-full flex flex-col justify-center items-center">
                 <h3 className="text-lg leading-6 font-medium text-gray-700 text-center mb-2">
                     User Profile
@@ -29,8 +31,9 @@ function Profile() {
                     <div className="relative w-64">
 
                         <img className="w-64 h-64 rounded-full absolute"
-                             src={`https://localhost:7118/api/UserProfile/GetImage?name=${userData && userData.imgProfile}`}
+                                 src={userProfile||`https://localhost:7118/api/User/GetImage?name=${userData && userData.imgProfile}`}
                              alt=""/>
+
                     </div>
                 </div>
                 <div className="w-full bg-white shadow overflow-hidden sm:rounded-lg mb-8 mt-10">
@@ -65,12 +68,21 @@ function Profile() {
                                     </div>
                                     <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                         <dt className="text-sm font-medium text-gray-500">
+                                            Date of Birth
+                                        </dt>
+                                        <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                            {userData.dateOfBirth}
+                                        </dd>
+                                    </div>
+                                    <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                        <dt className="text-sm font-medium text-gray-500">
                                             Address
                                         </dt>
                                         <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                             {userData.address}
                                         </dd>
                                     </div>
+
                                     <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                         <dt className="text-sm font-medium text-gray-500">
                                             Phone

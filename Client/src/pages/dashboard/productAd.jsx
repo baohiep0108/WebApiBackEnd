@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import Instance from "@/configs/instance.js";
+import {toast, ToastContainer} from "react-toastify";
 export function ProductAd() {
     const navigate= useNavigate()
     const [product, setProduct] = useState([]);
@@ -18,19 +19,12 @@ export function ProductAd() {
     }
     const handleDeleteProduct=(id)=>{
         Instance.delete(`/api/Product/Delete/${id}`).then(()=>{
+            toast.success("Delete Product Success")
            fetchProduct()
         }).catch((err)=>console.log(err))
     }
     const handleEditProduct=(id)=>{
         navigate(`edit/${id}`);
-    }
-
-    const fetchImage = (name) => {
-        return Instance.get(`/api/Product/GetImage/GetImage?name=${name}`)
-            .then((response) => {
-                return response.data;
-            })
-            .catch((err) => console.log(err))
     }
     return (
         <div className="mt-12 mb-8 flex flex-col gap-12">
@@ -42,6 +36,7 @@ export function ProductAd() {
                             Create new
                         </button>
                     </Link>
+                    <ToastContainer/>
                     <table className="w-full min-w-[640px] table-auto">
                         <thead>
                         <tr>
@@ -104,7 +99,8 @@ export function ProductAd() {
                                         <img src={"https://localhost:7118/api/Product/GetImage?name="+product.img} alt="Product Image" className="w-16 h-16" />
                                     </Typography>
                                 </td>
-                                <td className="border-b border-blue-gray-50 py-3 px-5">
+                                <td className="border-b border-blue-gray-50 py-3 px-5 flex">
+
                                     <button
                                         className="text-xs font-semibold text-white bg-yellow-500 hover:bg-yellow-600 py-1 px-2 rounded"
                                         onClick={() => handleEditProduct(product.productId)}

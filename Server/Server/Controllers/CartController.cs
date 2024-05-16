@@ -29,7 +29,7 @@ namespace ProjectFunctionalTesting.Controllers
             if (userEmail == null)
                 return Unauthorized();
             var cartItems = _context.CartItems
-                .Include(c => c.Product) 
+                .Include(c => c.Products) 
                 .Where(c => c.UserEmailAddress == userEmail)
                 .ToList();
 
@@ -54,7 +54,7 @@ namespace ProjectFunctionalTesting.Controllers
             }
             else
             {
-                cartItem = new CartItem { UserEmailAddress = userEmail, ProductId = productid, Quantity = 1, Product = product };
+                cartItem = new CartItem { UserEmailAddress = userEmail, ProductId = productid, Quantity = 1, Products = product };
                 _context.CartItems.Add(cartItem);
             }
             _context.SaveChanges();
@@ -63,7 +63,7 @@ namespace ProjectFunctionalTesting.Controllers
 
             [HttpPut]
             [Route("Update-Cart")]
-            public IActionResult UpdateCart([FromForm] int productid, [FromForm] int quantity)
+            public IActionResult UpdateCart(int productid, int quantity)
             {
                 var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 if (userEmail == null)

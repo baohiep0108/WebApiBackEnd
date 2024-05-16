@@ -3,6 +3,9 @@ import AuthIdUser from "@/configs/AuthIdUser.js";
 import Instance from "@/configs/instance.js";
 import {Link} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
+import userProfile from "../../../public/img/user-profile.jpg";
+import {toast, ToastContainer} from "react-toastify";
+
 function EditProfile() {
     const navigate= useNavigate()
     const id = AuthIdUser();
@@ -50,9 +53,10 @@ function EditProfile() {
                 }
                 const formData = new FormData();
                 formData.append('Img', getUpImg);
-                Instance.put(`api/UserProfile/UpImg-Profile/${id}`, formData)
+                Instance.put(`/api/User/UpImg-Profile/${id}`, formData)
                     .then(() => {
                         console.log("Upload success");
+                        toast.success("Uploand image success ")
                         fetchUser();
                     })
                     .catch((err) => {
@@ -60,15 +64,14 @@ function EditProfile() {
                     });
             }
             const handleSubmitProfile =()=>{
-                Instance.put(`api/UserProfile/UpdateProfile/${id}`,data)
+                Instance.put(`/api/User/UpdateProfile/${id}`,data)
                     .then(()=> {
-                        console.log("User updated successfully");
+                        toast.success("Update file successful")
                         fetchUser();
                         navigate("/home");
                     })
                     .catch((err) => console.log(err))
             }
-
             return (
                 <div className="bg-gray-50 min-h-screen flex justify-center">
                     <div className="max-w-2xl w-full flex flex-col justify-center items-center">
@@ -77,10 +80,11 @@ function EditProfile() {
                         </h3>
                         <div className="w-full bg-white shadow overflow-hidden sm:rounded-lg mb-8">
                             <div className="px-4 py-5 sm:px-6">
+                                <ToastContainer/>
                                 <div className="mx-auto w-64 text-center">
                                     <div className="relative w-64">
                                         <img className="w-64 h-64 rounded-full absolute"
-                                             src={`https://localhost:7137/api/UserProfile/GetImage?name=${getImg}`}
+                                             src={userProfile||`https://localhost:7118/api/User/GetImage?name=${getImg}`}
                                              alt=""/>
                                         <form onSubmit={handleSubmitImg}>
                                             <label
@@ -106,6 +110,7 @@ function EditProfile() {
                                     </div>
                                 </div>
                                 <div className="z-auto">
+
                                     <form onSubmit={handleSubmitProfile}>
                                         <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                             <label className="text-sm font-medium text-gray-500">

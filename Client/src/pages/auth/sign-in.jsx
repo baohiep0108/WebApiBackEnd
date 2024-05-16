@@ -1,5 +1,5 @@
 import { Input,Checkbox,Button,Typography,} from "@material-tailwind/react";
-import {Link, Navigate, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
 import Instance from "@/configs/instance.js";
 import getUserRole from "@/configs/userRole.js";
@@ -36,11 +36,8 @@ export function SignIn() {
             })
             .catch((err) => console.log(err));
     }
-
-
   return (
     <section className="m-8 flex gap-4">
-
       <div className="w-full lg:w-3/5 mt-24">
         <div className="text-center">
           <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>

@@ -41,7 +41,7 @@ namespace WebApi.Helper
                 .HasForeignKey(od => od.OrderId);
 
             modelBuilder.Entity<OrderDetail>()
-                .HasOne(od => od.Product)
+                .HasOne(od => od.Products)
                 .WithMany()
                 .HasForeignKey(od => od.ProductId);
            

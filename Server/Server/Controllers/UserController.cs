@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectFunctionalTesting.Service;
 using ProjectFunctionalTesting.ViewModel;
 using WebApi.Helper;
-using WebApi.Model;
-using WebApi.Repository.Interfaces;
 
 
 namespace ProjectFunctionalTesting.Controllers

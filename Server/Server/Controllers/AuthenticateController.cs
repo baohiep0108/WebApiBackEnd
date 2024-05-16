@@ -101,6 +101,7 @@ namespace ProjectFunctionalTesting.Controllers
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
+        [AllowAnonymous]
         [HttpPost]
         [Route("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterVM model)

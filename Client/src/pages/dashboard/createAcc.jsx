@@ -5,7 +5,7 @@ export function CreateAcc() {
     const navigate = useNavigate();
     const [getUserName, setUserName] = useState(null);
     const [getEmail, setEmail] = useState(null);
-    const [getPassword, setPassword] = useState(null);
+    const [getPassword, setPassword] = useState('');
     const [getRole, setRole] = useState('user');
 
     const handleSubmit = (e) => {

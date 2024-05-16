@@ -7,21 +7,27 @@ import Profile from "@/pages/user/profile.jsx";
 import EditProfile from "@/pages/user/editProfile.jsx";
 import Product from "@/pages/user/product.jsx";
 import ProductDetails from "@/pages/user/productDetails.jsx";
+import Instance from "@/configs/instance.js";
+import Order from "@/pages/user/order.jsx";
 function HomePage() {
-
+    const data = localStorage.getItem('token');
+    if (data) {
+        Instance.defaults.headers.common["Authorization"] = `Bearer ${data}`;
+    }
     return (
-        <div>
+        <>
             <Header/>
+
             <Routes>
                 <Route path="/" element={<Product/>}/>
-                <Route path="/product/*" element={<ProductDetails/>}/>
+                <Route path="product/detail/:id" element={<ProductDetails/>}/>
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/profile" element={<Profile/>}/>
                 <Route path="/EditProfile" element={<EditProfile/>}/>
+                <Route path="/Order" element={<Order/>}/>
             </Routes>
             <Footer/>
-        </div>
-
+        </>
     );
 }
 HomePage.displayName="/src/layout/homePage.jsx"

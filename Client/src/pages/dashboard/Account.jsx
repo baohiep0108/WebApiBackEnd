@@ -12,14 +12,14 @@ export function Account() {
 
     const fetchUsers = () => {
         Instance
-            .get("/api/Authenticate/get-user")
+            .get("/api/Authenticate/get-Acc")
             .then((response) => {
                 setUsers(response.data);
             })
             .catch((err) => console.log(err));
     };
     const handleDeleteAcc= (id)=>{
-        Instance.delete(`api/Authenticate/delete-user/${id}`)
+        Instance.delete(`/api/Authenticate/delete-user/${id}`)
             .then(()=>{
                 fetchUsers()
             })
@@ -91,7 +91,7 @@ export function Account() {
                                 </td>
                                 
 
-                                <td className="border-b border-blue-gray-50 py-3 px-5">
+                                <td className="border-b border-blue-gray-50 py-3 px-5 flex">
                                     <button
                                         className="text-xs font-semibold text-white bg-yellow-500 hover:bg-yellow-600 py-1 px-2 rounded"
                                         onClick={()=>handleEditAcc(user.id)}

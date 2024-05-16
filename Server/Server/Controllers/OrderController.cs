@@ -16,69 +16,44 @@ namespace Server.Controllers
     {
         private readonly ApplicationDBContext _context;
 
-
         public OrderController(ApplicationDBContext context)
         {
-
             _context = context;
-
         }
-        //[HttpGet]
-        //[Route("Show-order")]
-        //public IActionResult ShowOrder()
-        //{
-        //    var userid = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        //    if (userid == null)
-        //        return Unauthorized();
-        //    var order= _context.Orders.Include(x => x.User).Where(p=>p.UserId==userid).FirstOrDefault();
-        //    if(order == null) return NotFound();
-        //    var orderDetail= _context.OrderDetails.Where(p=>p.OrderId==order.OrderId).FirstOrDefault();
-        //    if(orderDetail == null) return NotFound();
-        //    var product= _context.Products.Where(p=>p.ProductId==orderDetail.ProductId).FirstOrDefault();
-        //    if(product == null) return NotFound();
 
-        //    var oderVM = new OrderVM { 
-        //        ProductName = product.ProductName,
-        //        OrderDate = order.OrderDate,
-        //        Status=order.Status,
-        //        ImageProductName= product.Img,
-        //        Price= product.ProductPrice,
-        //        Quantity= orderDetail.Quantity,
-        //    };
-        //    return Ok(oderVM);
-        //}
         [HttpGet]
         [Route("Show-order")]
-        public IActionResult ShowOrder()
+        public async Task<IActionResult> ShowOrder()
         {
             var userid = User.FindFirst(ClaimTypes.Authentication)?.Value;
             if (userid == null)
                 return Unauthorized();
 
-            var orders = _context.Orders
-                .Include(x => x.User)
-                .Where(p => p.UserId == userid)
-                .ToList();
+            var orders = await _context.Orders
+                .Include(o => o.User)
+                .Where(o => o.UserId == userid)
+                .ToListAsync();
 
             var orderVMs = new List<OrderVM>();
             foreach (var order in orders)
             {
-                var orderDetails = _context.OrderDetails
-                    .Include(od => od.Product)
+                var orderDetails = await _context.OrderDetails
+                    .Include(od => od.Products)
                     .Where(od => od.OrderId == order.OrderId)
-                    .ToList();
+                    .ToListAsync();
 
                 foreach (var orderDetail in orderDetails)
                 {
                     var orderVM = new OrderVM
                     {
                         OrderId = order.OrderId,
-                        ProductId = orderDetail.ProductId,
-                        ProductName = orderDetail.Product.ProductName,
-                        OrderDate = order.OrderDate,
+                        UserEmail= order.User.UserName,
+                        ProductId = (int)orderDetail.ProductId,
+                        ProductName = orderDetail.Products.ProductName,
+                        OrderDate = order.OrderDate.ToString(),
                         Status = order.Status,
-                        ImageProductName = orderDetail.Product.Img,
-                        Price = orderDetail.Product.ProductPrice,
+                        ImageProductName = orderDetail.Products.Img,
+                        Price = orderDetail.Products.ProductPrice,
                         Quantity = orderDetail.Quantity
                     };
                     orderVMs.Add(orderVM);
@@ -91,31 +66,32 @@ namespace Server.Controllers
         [HttpGet]
         [Route("Show-all-orders")]
         [Authorize(Roles = "Admin")]
-        public IActionResult ShowAllOrders()
+        public async Task<IActionResult> ShowAllOrders()
         {
-            var orders = _context.Orders
-                .Include(x => x.User)
-                .ToList();
+            var orders = await _context.Orders
+                .Include(o => o.User)
+                .ToListAsync();
 
             var orderVMs = new List<OrderVM>();
             foreach (var order in orders)
             {
-                var orderDetails = _context.OrderDetails
-                    .Include(od => od.Product)
+                var orderDetails = await _context.OrderDetails
+                    .Include(od => od.Products)
                     .Where(od => od.OrderId == order.OrderId)
-                    .ToList();
+                    .ToListAsync();
 
                 foreach (var orderDetail in orderDetails)
                 {
                     var orderVM = new OrderVM
                     {
                         OrderId = order.OrderId,
-                        ProductId = orderDetail.ProductId,
-                        ProductName = orderDetail.Product.ProductName,
+                        UserEmail= order.User.Email,
+                        ProductId = (int)orderDetail.ProductId,
+                        ProductName = orderDetail.Products.ProductName,
                         OrderDate = order.OrderDate,
                         Status = order.Status,
-                        ImageProductName = orderDetail.Product.Img,
-                        Price = orderDetail.Product.ProductPrice,
+                        ImageProductName = orderDetail.Products.Img,
+                        Price = orderDetail.Products.ProductPrice,
                         Quantity = orderDetail.Quantity
                     };
                     orderVMs.Add(orderVM);
@@ -124,6 +100,7 @@ namespace Server.Controllers
 
             return Ok(orderVMs);
         }
+       
 
         [HttpPost]
         [Route("Place-Order")]
@@ -133,59 +110,62 @@ namespace Server.Controllers
             if (userEmail == null)
                 return Unauthorized();
 
-            var cartItems = _context.CartItems.Where(c => c.UserEmailAddress == userEmail).ToList();
-            if (cartItems.Count == 0)
-            {
+            var cartItems = await _context.CartItems
+                .Where(c => c.UserEmailAddress == userEmail)
+                .ToListAsync();
+
+            if (!cartItems.Any())
                 return BadRequest("Giỏ hàng đang trống. Thêm sản phẩm vào giỏ hàng trước khi đặt hàng.");
-            }
+
             var userid = User.FindFirst(ClaimTypes.Authentication)?.Value;
             var order = new Order
             {
                 Status = "Pending",
                 OrderDate = DateTime.Now.ToString(),
-                UserId = userid,
-
+                UserId = userid
             };
             _context.Orders.Add(order);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
             foreach (var cartItem in cartItems)
             {
-                var product = await _context.Products.Where(c => c.ProductId == cartItem.ProductId).FirstOrDefaultAsync();
+                var product = await _context.Products.FindAsync(cartItem.ProductId);
                 var orderDetail = new OrderDetail
                 {
                     Status = "Pending",
                     ProductName = product.ProductName,
-                    Price = cartItem.Product.ProductPrice,
+                    Price = product.ProductPrice,
                     Quantity = cartItem.Quantity,
                     OrderId = order.OrderId,
-                    ProductId = cartItem.ProductId,
+                    ProductId = cartItem.ProductId
                 };
                 _context.OrderDetails.Add(orderDetail);
                 _context.CartItems.Remove(cartItem);
             }
-            _context.SaveChanges();
+
+            await _context.SaveChangesAsync();
             return Ok("Đặt hàng thành công");
         }
+
         [HttpPost]
         [Route("Order-Now")]
         public async Task<IActionResult> OrderNow(int productid)
         {
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             if (userEmail == null)
-            {
                 return Unauthorized();
-            }
+
             var userid = User.FindFirst(ClaimTypes.Authentication)?.Value;
             var order = new Order
             {
                 Status = "Pending",
                 OrderDate = DateTime.Now.ToString(),
-                UserId = userid,
-
+                UserId = userid
             };
             _context.Orders.Add(order);
-            _context.SaveChanges();
-            var product = await _context.Products.Where(c => c.ProductId == productid).FirstOrDefaultAsync();
+            await _context.SaveChangesAsync();
+
+            var product = await _context.Products.FindAsync(productid);
             var orderDetail = new OrderDetail
             {
                 Status = "Pending",
@@ -193,22 +173,29 @@ namespace Server.Controllers
                 Price = product.ProductPrice,
                 Quantity = 1,
                 OrderId = order.OrderId,
-                ProductId = productid,
+                ProductId = productid
             };
             _context.OrderDetails.Add(orderDetail);
-            _context.SaveChanges();
-            return Ok("Đặt hàng thành công");
+            await _context.SaveChangesAsync();
+
+            return Ok("Order Success");
         }
+
         [HttpPut]
         [Route("Update-Order-Status")]
-        [Authorize(Roles = "Admin")] 
-        public IActionResult UpdateOrderStatus(int orderId, string status)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, string status)
         {
-            var order = _context.Orders.FirstOrDefault(o => o.OrderId == orderId);
+            if(status == null)
+            {
+                return NotFound();
+            };
+            var order = await _context.Orders.FindAsync(orderId);
             if (order == null)
                 return NotFound("Order not found");
+
             order.Status = status;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok("Order status updated successfully");
         }
         [HttpDelete]
@@ -217,19 +204,20 @@ namespace Server.Controllers
         {
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             if (userEmail == null)
-            {
                 return Unauthorized();
-            }
+
             var orderDetail = await _context.OrderDetails
-                                            .FirstOrDefaultAsync(od => od.OrderId == orderId && od.ProductId == productid);
+                .FirstOrDefaultAsync(od => od.OrderId == orderId && od.ProductId == productid);
+
             if (orderDetail == null)
-            {
                 return NotFound("Order detail not found");
-            }
+
             _context.OrderDetails.Remove(orderDetail);
             await _context.SaveChangesAsync();
+
             var remainingOrderDetails = await _context.OrderDetails
-                                                      .AnyAsync(od => od.OrderId == orderId);
+                .AnyAsync(od => od.OrderId == orderId);
+
             if (!remainingOrderDetails)
             {
                 var order = await _context.Orders.FindAsync(orderId);
@@ -239,8 +227,8 @@ namespace Server.Controllers
                     await _context.SaveChangesAsync();
                 }
             }
+
             return Ok("Order deleted successfully");
         }
-
     }
 }

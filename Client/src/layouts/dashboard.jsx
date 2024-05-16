@@ -12,11 +12,16 @@ import EditCategory from "@/pages/dashboard/editCategory";
 import CreateAcc from "@/pages/dashboard/createAcc";
 import EditAcc from "@/pages/dashboard/editAcc";
 import EditProduct from "@/pages/dashboard/editProduct";
+import Instance from "@/configs/instance.js";
+import EditOrder from "@/pages/dashboard/editOrder.jsx";
 
 export function Dashboard() {
     const [controller, dispatch] = useMaterialTailwindController();
     const { sidenavType } = controller;
-
+    const data = localStorage.getItem('token');
+    if (data) {
+        Instance.defaults.headers.common["Authorization"] = `Bearer ${data}`;
+    }
     return (
         <div className="min-h-screen bg-blue-gray-50 flex">
             <Sidenav
@@ -41,6 +46,7 @@ export function Dashboard() {
                     <Route path="/account/createAcc" element={<CreateAcc />} />
                     <Route path="/category/edit/:id" element={<EditCategory />} />
                     <Route path="/account/edit/:id" element={<EditAcc />} />
+                    <Route path="/order/edit/:id" element={<EditOrder />} />
                 </Routes>
                 <div className="text-blue-gray-600">
                     <Footer />

@@ -1,15 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import Instance from "@/configs/instance.js";
+import {toast, ToastContainer} from "react-toastify";
 
 function EditAcc() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [getUserName, setUserName] = useState(null);
-    const [getEmail, setEmail] = useState(null);
-    const [getPassword, setPassword] = useState(null);
-    const [getPhoneNumber,setPhoneNumber]= useState(null);
-    const  [getAddress, setAddress]= useState(null);
+    const [getUserName, setUserName] = useState('');
+    const [getEmail, setEmail] = useState('');
+    const [getPassword, setPassword] = useState('');
+    const [getPhoneNumber,setPhoneNumber]= useState('');
+    const  [getAddress, setAddress]= useState('');
 
     useEffect(() => {
         Instance.get(`/api/Authenticate/get-user/${id}`)
@@ -32,15 +33,14 @@ function EditAcc() {
     const handleSubmit = () => {
         Instance.put(`/api/Authenticate/Update-user/${id}`, data)
             .then(()=>{
-                console.log("User updated successfully");
+                toast.success("User updated successfully");
                 navigate("/dashboard/account")
             })
             .catch((err)=>console.log(err))
     }
     return (
-
-        <div>
-
+        <>
+            <ToastContainer/>
             <form onSubmit={handleSubmit}>
                 <div className="space-y-12">
 
@@ -138,7 +138,6 @@ function EditAcc() {
                             onClick={() => navigate("/dashboard/account")}>
                         Cancel
                     </button>
-
                     <button
                         type="submit"
                         className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -147,7 +146,7 @@ function EditAcc() {
                     </button>
                 </div>
             </form>
-        </div>
+        </>
     );
 }
 

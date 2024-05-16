@@ -6,6 +6,7 @@ import {
 import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
 import Instance from "@/configs/instance.js";
+import {toast, ToastContainer} from "react-toastify";
 export function SignUp() {
 
     const navigate = useNavigate();
@@ -24,9 +25,13 @@ export function SignUp() {
             .post("/api/Authenticate/register", register)
             .then((response) => {
                 console.log(response)
+                toast.success("Sign Up Success")
                 navigate("/login");
             })
-            .catch((err) => console.log(err))
+            .catch((err) =>{
+                toast.error("Sign Up failed");
+                console.log(err);
+            })
     };
   return (
       <section className="m-8 flex">
@@ -42,6 +47,7 @@ export function SignUp() {
                   <Typography variant="h2" className="font-bold mb-4">Join Us Today</Typography>
                   <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to register.</Typography>
               </div>
+              <ToastContainer/>
               <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2" onSubmit={handleSubmit}>
                   <div className="mb-1 flex flex-col gap-6">
                       <Typography className="-mb-3 font-medium">
@@ -91,8 +97,6 @@ export function SignUp() {
                           }}
                       />
                   </div>
-
-
                   <Button type="submit" className="mt-6" fullWidth>
                       Register Now
                   </Button>
