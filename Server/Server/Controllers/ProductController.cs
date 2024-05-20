@@ -130,19 +130,19 @@ namespace ProjectFunctionalTesting.Controllers
                 {
                     return BadRequest("Category does not exist.");
                 }
-                var productNew = _mapper.Map<Product>(product);
+                _mapper.Map(product, productcheck);
                 if (product.Img !=null)
                 {
                     string imagePath = await UploadImg.UploadImageAsync(product.Img, "Product");
-                    productNew.Img = imagePath;
+                    productcheck.Img = imagePath;
                 }
                 else
                 {
-                    productNew.Img = productcheck.Img;
+                    productcheck.Img = productcheck.Img;
                 }
-                productNew.CategoryId = product.CategoryId;           
-                await _productRepository.UpAsync(productNew);
-                return Ok(productNew);
+                productcheck.CategoryId = product.CategoryId;           
+                await _productRepository.UpAsync(productcheck);
+                return Ok(productcheck);
             }
             catch (Exception ex)
             {

@@ -19,11 +19,6 @@
                 throw new Exception("Failed to upload image: " + ex.Message);
             }
         }
-
-        internal static async Task<string> UploadImageAsync(string? imgProfile, string v)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 }

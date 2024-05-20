@@ -48,7 +48,7 @@ namespace Server.Controllers
                     {
                         OrderId = order.OrderId,
                         UserEmail= order.User.UserName,
-                        ProductId = (int)orderDetail.ProductId,
+                        ProductId = orderDetail.ProductId,
                         ProductName = orderDetail.Products.ProductName,
                         OrderDate = order.OrderDate.ToString(),
                         Status = order.Status,
@@ -86,7 +86,7 @@ namespace Server.Controllers
                     {
                         OrderId = order.OrderId,
                         UserEmail= order.User.Email,
-                        ProductId = (int)orderDetail.ProductId,
+                        ProductId = orderDetail.ProductId,
                         ProductName = orderDetail.Products.ProductName,
                         OrderDate = order.OrderDate,
                         Status = order.Status,

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import {Fragment, useEffect, useState} from 'react'
 import { Dialog, Disclosure, Popover, Transition } from '@headlessui/react'
 import {
     ArrowPathIcon,
@@ -8,12 +8,15 @@ import {
     FingerPrintIcon,
     SquaresPlusIcon,
     XMarkIcon,
+    ShoppingCartIcon,
+    UserIcon
 
 } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
+import { ChevronDownIcon} from '@heroicons/react/20/solid'
 import axios from "axios";
 import {Link} from "react-router-dom";
-
+import logoWeb from "/public/img/logo.png"
+import Instance from "@/configs/instance.js";
 const products = [
     { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
     { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
@@ -21,10 +24,7 @@ const products = [
     { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
     { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
 ]
-const callsToAction = [
-    { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
-    { name: 'Contact sales', href: '#', icon: PhoneIcon },
-]
+
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -33,16 +33,36 @@ const handleLogout = () => {
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
 };
-export default function Example() {
+export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [cartItem,setCart]= useState([])
+    const [getCategory, setCategory]= useState([])
+    const fetchCategory=()=>{
+        Instance.get("/api/Category/Index").then((response) => {
+            const dataUser = response.data;
+            setCategory(dataUser);
+        }).catch((err)=>console.log(err))
+    }
+    useEffect(() => {
+        fetchCategory()
+    }, []);
+    const fetchCart=()=>{
+        Instance.get("/api/Cart/Show-cart").then((response) => {
+            const dataUser = response.data;
+            setCart(dataUser);
+        }).catch((err)=>console.log(err))
+    }
 
+    useEffect(() => {
+        fetchCart()
+    }, []);
     return (
         <header className="bg-white">
             <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
                 <div className="flex lg:flex-1">
                     <a href="/home" className="-m-1.5 p-1.5">
                         <span className="sr-only">Your Cart</span>
-                        <img className="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="" />
+                        <img className="h-20 w-auto" src={logoWeb} alt="logo" />
                     </a>
                 </div>
                 <div className="flex lg:hidden">
@@ -59,7 +79,7 @@ export default function Example() {
                     <Popover className="relative">
                         <Popover.Button
                             className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
-                            Product
+                            Category
                             <ChevronDownIcon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true"/>
                         </Popover.Button>
 
@@ -75,51 +95,42 @@ export default function Example() {
                             <Popover.Panel
                                 className="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
                                 <div className="p-4">
-                                    {products.map((item) => (
+                                    {getCategory.map((item) => (
                                         <div
                                             key={item.name}
-                                            className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm leading-6 hover:bg-gray-50"
-                                        >
-                                            <div
-                                                className="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                                                <item.icon className="h-6 w-6 text-gray-600 group-hover:text-indigo-600"
-                                                           aria-hidden="true"/>
-                                            </div>
+                                            className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm leading-6 hover:bg-gray-50">
                                             <div className="flex-auto">
-                                                <a href={item.href} className="block font-semibold text-gray-900">
-                                                    {item.name}
+                                                <a href={`/home/category/${item.categoryId}`} className="block font-semibold text-gray-900">
+                                                    {item.categoryName}
                                                     <span className="absolute inset-0"/>
                                                 </a>
-                                                <p className="mt-1 text-gray-600">{item.description}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
-                                    {callsToAction.map((item) => (
-                                        <a
-                                            key={item.name}
-                                            href={item.href}
-                                            className="flex items-center justify-center gap-x-2.5 p-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-100"
-                                        >
-                                            <item.icon className="h-5 w-5 flex-none text-gray-400" aria-hidden="true"/>
-                                            {item.name}
-                                        </a>
-                                    ))}
+
                                 </div>
                             </Popover.Panel>
                         </Transition>
                     </Popover>
-                    <Link to="profile" className="text-sm font-semibold leading-6 text-gray-900">
-                        Profile
-                    </Link>
+
 
                     <Link to="order" className="text-sm font-semibold leading-6 text-gray-900">
                         Order
                     </Link>
-
-                    <Link to="cart" className="text-sm font-semibold leading-6 text-gray-900">
-                        Cart
+                    <Link to="profile" className="flex items-center text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+                        <UserIcon className="h-6 w-6 mr-1" />
+                        Profile
+                    </Link>
+                    <Link to="cart" className="flex items-center text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+                        <div className="flex items-center">
+                            <ShoppingCartIcon className="h-6 w-6 mr-1" />
+                            <span className="mr-2">Cart</span>
+                        </div>
+                        {cartItem.length > 0 && (
+                            <span className="bg-gray-900 text-white rounded-full px-2 py-1 text-xs">{cartItem.length}</span>
+                        )}
                     </Link>
                 </Popover.Group>
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
@@ -137,8 +148,8 @@ export default function Example() {
                         <a href="#" className="-m-1.5 p-1.5">
                             <span className="sr-only">Your Cart</span>
                             <img
-                                className="h-8 w-auto"
-                                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                                className="h-12 w-auto"
+                                src={logoWeb}
                                 alt=""
                             />
                         </a>
@@ -179,24 +190,24 @@ export default function Example() {
                                         </>
                                     )}
                                 </Disclosure>
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                                >
-                                    Features
-                                </a>
                                 <Link
                                     to="profile"
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                                 >
                                     Profile
                                 </Link>
-                                <a
-                                    href="#"
+                                <Link
+                                    to={"order"}
+                                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                                >
+                                    Order
+                                </Link>
+                                <Link
+                                    to={"cart"}
                                     className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                                 >
                                     Cart
-                                </a>
+                                </Link>
                             </div>
                             <div className="py-6">
                                 <Link to="/login">

@@ -15,7 +15,7 @@ namespace WebApiShopCart.Model
         public virtual Order? Order { get; set; }
         public int? ProductId { get; set; }
         [ForeignKey("ProductId")]
-        public virtual Product? Products { get; set; }
+        public virtual Product Products { get; set; }
 
     }
 
