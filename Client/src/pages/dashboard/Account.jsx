@@ -3,21 +3,16 @@ import { Card, CardBody, Typography } from "@material-tailwind/react";
 import Instance from "@/configs/instance.js";
 import {Link} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchAllUser} from "@/redux/Thunk/user.js";
 export function Account() {
-    const [users, setUsers] = useState([]);
+    const dispatch= useDispatch();
     const navigate= useNavigate()
+    const { contents: users, isLoading, error } = useSelector(state => state.user);
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        dispatch(fetchAllUser());
+    }, [dispatch]);
 
-    const fetchUsers = () => {
-        Instance
-            .get("/api/Authenticate/get-Acc")
-            .then((response) => {
-                setUsers(response.data);
-            })
-            .catch((err) => console.log(err));
-    };
     const handleDeleteAcc= (id)=>{
         Instance.delete(`/api/Authenticate/delete-user/${id}`)
             .then(()=>{

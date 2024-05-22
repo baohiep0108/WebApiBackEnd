@@ -1,62 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardBody, Typography } from "@material-tailwind/react";
-import Instance from "@/configs/instance.js";
-import {useNavigate} from "react-router-dom";
-import {toast, ToastContainer} from "react-toastify";
-export  function Category() {
-    const [category, setCategory] = useState([]);
-    const [newCategoryName, setNewCategoryName] = useState(null);
-    const [showForm, setShowForm] = useState(false);
-    const navigate= useNavigate()
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-    const fetchCategories = () => {
-        Instance
-            .get("/api/Category/Index")
-            .then((response) => {
-                setCategory(response.data);
-            })
-            .catch((err) => console.log(err));
-    };
-    const handCreateCategory = () => {
-        const data = { categoryName: newCategoryName };
-        Instance.post('/api/Category/Create', data)
-            .then(() => {
-                toast.success("Add category successfully");
-                fetchCategories();
-            })
-            .catch((err) => {
-                console.log(err);
-                toast.error("Failed to add category");
-            });
-    }
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { addCategory, deleteCategory, fetchCategory } from "@/redux/Thunk/category.js";
 
+export function Category() {
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [showForm, setShowForm] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const dispatch = useDispatch();
+    const { contents: category, isLoading, error } = useSelector(state => state.category);
+    useEffect(() => {
+        dispatch(fetchCategory());
+        if (location.state?.toastMessage) {
+            toast.success(location.state.toastMessage);
+        }
+    }, [dispatch, location.state]);
+
+    const handleCreateCategory = async (e) => {
+        e.preventDefault();
+        if (newCategoryName.trim()) {
+            try {
+                await dispatch(addCategory({ categoryName: newCategoryName }));
+                toast.success("Category added successfully!");
+                setNewCategoryName('');
+                setShowForm(false);
+            } catch (err) {
+                toast.error(`Error: ${err.message}`);
+            }
+        } else {
+            toast.error("Category name cannot be empty!");
+        }
+    };
     const handleEditCategory = (categoryId) => {
         navigate(`edit/${categoryId}`);
-    }
-
-    const handleDeleteCategory = (categoryId) => {
-        Instance
-            .delete(`/api/Category/${categoryId}`)
-            .then(() => {
-                toast.success("Delete category successfully");
-                fetchCategories();
-            })
-            .catch((err) => {
-                console.log(err);
-                toast.error("Failed to delete category");
-            });
     };
+
+    const handleDeleteCategory = async (categoryId) => {
+        try {
+            await dispatch(deleteCategory(categoryId));
+            toast.success("Category deleted successfully!");
+        } catch (err) {
+            toast.error("Category delete failed!");
+        }
+    };
+
+
     const handleToggleForm = () => {
         setShowForm(!showForm);
     };
+
     return (
         <div className="mt-12 mb-8 flex flex-col gap-12">
-            <ToastContainer/>
+            <ToastContainer />
             <Card>
                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-
                     <div className="flex flex-col">
                         <div className="flex justify-between items-center mb-3">
                             <button
@@ -68,7 +68,7 @@ export  function Category() {
                             </button>
                         </div>
                         {showForm && (
-                            <form className="w-full max-w-sm" onSubmit={handCreateCategory}>
+                            <form className="w-full max-w-sm" onSubmit={handleCreateCategory}>
                                 <div className="flex items-center border-b border-teal-500 py-2">
                                     <input
                                         className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
@@ -93,7 +93,6 @@ export  function Category() {
                                     </button>
                                 </div>
                             </form>
-
                         )}
                     </div>
                     <table className="w-full min-w-[640px] table-auto">
@@ -127,9 +126,7 @@ export  function Category() {
                                         {category.categoryName}
                                     </Typography>
                                 </td>
-
                                 <td className="border-b border-blue-gray-50 py-3 px-5 flex">
-
                                     <button
                                         className="text-xs font-semibold text-white bg-yellow-500 hover:bg-yellow-600 py-1 px-2 rounded"
                                         onClick={() => handleEditCategory(category.categoryId)}>
@@ -141,8 +138,6 @@ export  function Category() {
                                         Delete
                                     </button>
                                 </td>
-
-
                             </tr>
                         ))}
                         </tbody>

@@ -3,29 +3,31 @@ import {Link, useNavigate} from 'react-router-dom';
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import Instance from "@/configs/instance.js";
 import {toast, ToastContainer} from "react-toastify";
+import {deleteProduct, fetchProduct} from "@/redux/Thunk/product.js";
+import {useDispatch, useSelector} from "react-redux";
+import {deleteCategory} from "@/redux/Thunk/category.js";
+
 export function ProductAd() {
-    const navigate= useNavigate()
-    const [product, setProduct] = useState([]);
+    const dispatch = useDispatch();
+    const navigate= useNavigate();
+    const { contents: product, isLoading, error } = useSelector(state => state.product);
+
     useEffect(() => {
-        fetchProduct();
-    }, []);
-    const fetchProduct = () => {
-        Instance
-            .get("api/Product/Index")
-            .then((response) => {
-                setProduct(response.data);
-            })
-            .catch((err) => console.log(err));
-    }
-    const handleDeleteProduct=(id)=>{
-        Instance.delete(`/api/Product/Delete/${id}`).then(()=>{
-            toast.success("Delete Product Success")
-           fetchProduct()
-        }).catch((err)=>console.log(err))
-    }
-    const handleEditProduct=(id)=>{
+        dispatch(fetchProduct());
+    }, [dispatch]);
+
+    const handleDeleteProduct = async (id) => {
+        try {
+            await dispatch(deleteProduct(id));
+            toast.success("Product deleted successfully!");
+        } catch (err) {
+            toast.error("Product delete failed!");
+        }
+    };
+    const handleEditProduct = (id) => {
         navigate(`edit/${id}`);
-    }
+    };
+
     return (
         <div className="mt-12 mb-8 flex flex-col gap-12">
             <Card>
@@ -95,12 +97,10 @@ export function ProductAd() {
                                 </td>
                                 <td className="border-b border-blue-gray-50 py-3 px-5">
                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-
-                                        <img src={"https://localhost:7118/api/Product/GetImage?name="+product.img} alt="Product Image" className="w-16 h-16" />
+                                        <img src={`${import.meta.env.VITE_PUBLIC_IMG_URL}/api/Product/GetImage?name=${product.img}`} alt="Product Image" className="w-16 h-16" />
                                     </Typography>
                                 </td>
                                 <td className="border-b border-blue-gray-50 py-3 px-5 flex">
-
                                     <button
                                         className="text-xs font-semibold text-white bg-yellow-500 hover:bg-yellow-600 py-1 px-2 rounded"
                                         onClick={() => handleEditProduct(product.productId)}
@@ -110,7 +110,6 @@ export function ProductAd() {
                                     <button
                                         className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 py-1 px-2 rounded ml-2"
                                         onClick={() => handleDeleteProduct(product.productId)}>
-
                                         Delete
                                     </button>
                                 </td>

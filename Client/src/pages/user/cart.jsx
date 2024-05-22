@@ -2,34 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Instance from "@/configs/instance.js";
 import { toast } from "react-toastify";
+import {fetchCart} from "@/redux/Thunk/cart.js";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchOrder} from "@/redux/Thunk/order.js";
 
 export function Cart() {
-    const [cart, setCart] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { contents: cart, isLoading, error } = useSelector(state => state.cart); // Thay đổi từ state.category thành state.cart
 
     useEffect(() => {
-        fetchOrder();
-    }, []);
+        dispatch(fetchCart());
+    }, [dispatch]);
 
     useEffect(() => {
         calculateTotalPrice();
     }, [cart]);
 
-    const fetchOrder = () => {
-        Instance.get("/api/Cart/Show-cart")
-            .then((response) => {
-                const cartItems = response.data;
-                setCart(cartItems);
-            })
-            .catch((err) => console.log(err));
-    };
-
     const updateCart = (productId, quantity) => {
-
         Instance.put(`api/Cart/Update-Cart?productid=${productId}&quantity=${quantity}`)
             .then(() => {
-                fetchOrder();
+                dispatch(fetchOrder()); // Thay fetchOrder() thành dispatch(fetchOrder())
             })
             .catch((err) => console.log(err));
     };
@@ -47,13 +41,13 @@ export function Cart() {
         Instance.post("/api/Order/Place-Order")
             .then(() => {
                 toast.success("Order Success");
-                fetchOrder();
+                dispatch(fetchOrder()); // Thay fetchOrder() thành dispatch(fetchOrder())
             })
             .catch((err) => console.log(err));
     };
 
-
     return (
+
         <div className="py-24 relative">
             <div className="w-full max-w-7xl px-4 md:px-5 lg:px-6 mx-auto">
                 {cart.length === 0 ? (

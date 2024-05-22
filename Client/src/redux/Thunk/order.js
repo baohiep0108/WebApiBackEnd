@@ -1,27 +1,31 @@
-import {createAsyncThunk} from "@reduxjs/toolkit";
+// Thunks cho Order
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import Instance from "@/configs/instance.js";
 
 export const fetchOrder = createAsyncThunk(
     'order/fetchOrder',
     async () => {
-        const res = await Instance.get(`/api/Order/Show-all-orders`);
+        const res = await Instance.get('/api/Order/Show-all-orders');
         return res.data;
     }
 );
+
 export const fetchOrderForUser = createAsyncThunk(
     'order/fetchOrderForUser',
     async (id) => {
-        const res = await Instance.post(`/api/Order/Place-Order`);
+        const res = await Instance.get(`/api/Order/Show-order/${id}`);
         return res.data;
     }
 );
+
 export const placeOrder = createAsyncThunk(
     'order/placeOrder',
     async () => {
-        const res = await Instance.post(`/api/Order/Show-order`);
+        const res = await Instance.post('/api/Order/Place-Order');
         return res.data;
     }
 );
+
 export const OrderProduct = createAsyncThunk(
     'order/OrderProduct',
     async (productId) => {
@@ -29,17 +33,19 @@ export const OrderProduct = createAsyncThunk(
         return res.data;
     }
 );
+
 export const UpdateOrder = createAsyncThunk(
-    'order/OrderProduct',
-    async (orderId,status) => {
+    'order/UpdateOrder',
+    async ({ orderId, status }) => {
         const res = await Instance.put(`/api/Order/Update-Order-Status?orderId=${orderId}&status=${status}`);
         return res.data;
     }
 );
-export const deleteOrder= createAsyncThunk(
-    'order/OrderProduct',
-    async (productId,orderId) => {
-        const res = await Instance.delete(`/api/Order/Delete-Order?orderId=${orderId}&productid=${productId}}`);
+
+export const deleteOrder = createAsyncThunk(
+    'order/deleteOrder',
+    async ({ productId, orderId }) => {
+        const res = await Instance.delete(`/api/Order/Delete-Order?orderId=${orderId}&productid=${productId}`);
         return res.data;
     }
 );

@@ -3,26 +3,21 @@ import {Card, CardBody, Typography} from "@material-tailwind/react";
 import Instance from "@/configs/instance.js";
 import {toast, ToastContainer} from "react-toastify";
 import {useNavigate} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchOrder} from "@/redux/Thunk/order.js";
 export function Order() {
-    const [getOrder, setOrder]= useState([]);
+    const dispatch= useDispatch();
+    const { contents: order, isLoading, error } = useSelector(state => state.order);
     const navigate= useNavigate()
-    const fetchOrder = () => {
-        Instance.get("/api/Order/Show-all-orders")
-            .then((response) => {
-                setOrder(response.data);
-            })
-            .catch((err) => console.log(err));
-    }
 
     useEffect(() => {
-        fetchOrder();
-    }, []);
+        dispatch(fetchOrder());
+    }, [dispatch]);
 
     const handleDeleteOrder = (orderId, productId) => {
         Instance.delete(`/api/Order/Delete-Order?orderId=${orderId}&productid=${productId}`)
             .then(() => {
                 toast.success("Delete Order Success");
-                fetchOrder();
             })
             .catch((err) => {
                 console.log(err);
@@ -54,7 +49,7 @@ export function Order() {
                         </thead>
                         <tbody>
                         <ToastContainer/>
-                        {getOrder.map((order, index) => (
+                        {order.map((order, index) => (
                             <tr key={order.orderId}>
                                 <td className="border-b border-blue-gray-50 py-3 px-5">
                                     <Typography className="text-xs font-semibold text-blue-gray-600">
@@ -94,7 +89,7 @@ export function Order() {
                                 <td className="border-b border-blue-gray-50 py-3 px-5">
 
                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        <img src={`https://localhost:7118/api/Product/GetImage?name=${order.imageProductName}`}
+                                        <img src={`${import.meta.env.VITE_PUBLIC_IMG_URL}/api/Product/GetImage?name=${order.imageProductName}`}
                                              alt="Product Image" className="w-16 h-16"/>
                                     </Typography>
                                 </td>

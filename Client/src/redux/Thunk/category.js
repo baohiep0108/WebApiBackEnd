@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import Instance from "@/configs/instance.js";
+
 export const fetchCategory = createAsyncThunk(
     'category/fetchCategory',
     async () => {
@@ -7,6 +8,7 @@ export const fetchCategory = createAsyncThunk(
         return res.data;
     }
 );
+
 export const fetchCategoryById = createAsyncThunk(
     'category/fetchCategoryById',
     async (id) => {
@@ -14,22 +16,26 @@ export const fetchCategoryById = createAsyncThunk(
         return res.data;
     }
 );
+
 export const addCategory = createAsyncThunk(
     'category/addCategory',
     async (categoryData) => {
-        const response=await Instance.post('/api/Category/Create',categoryData);
+        const response = await Instance.post('/api/Category/Create', categoryData);
         return response.data;
     }
 );
+
 export const editCategory = createAsyncThunk(
     'category/editCategory',
-    async (categoryData,id) => {
-        const response=await Instance.put(`api/Category/Edit/${id}`,categoryData);
+    async ({ id, categoryData }) => {
+        const response = await Instance.put(`/api/Category/Edit/${id}`, categoryData);
         return response.data;
     }
 );
-export const deleteCategory = createAsyncThunk('category/deleteCategory', async (id)=>{
-       const  response=await  Instance.delete(`/api/Category/${id}`)
+export const deleteCategory = createAsyncThunk(
+    'category/deleteCategory',
+    async (id) => {
+        const response = await Instance.delete(`/api/Category/Delete-Category/${id}`);
         return response.data;
-})
-
+    }
+);
