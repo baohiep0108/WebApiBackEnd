@@ -83,7 +83,7 @@ namespace WebApi.Controllers
                 return BadRequest("Failed to update category: " + ex.Message); 
             }
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete-Category/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
            

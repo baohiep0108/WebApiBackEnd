@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
-using ProjectFunctionalTesting.ViewModel;
+using Server.Model;
+using Server.ViewModel;
 using WebApi.Data;
 using WebApi.Model;
 
@@ -11,6 +11,7 @@ namespace WebApiShopCart.Helper
         public ApplicationMapper()
         {
             CreateMap<Product, ProductVM>().ReverseMap();
+            CreateMap<Feedback, FeedbackVM>().ReverseMap();
         }
     }
 }

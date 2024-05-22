@@ -3,7 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectFunctionalTesting.Service;
+using Server.Model;
+using Server.ViewModel;
+using System.Security.Claims;
 using WebApi.Data;
+using WebApi.Helper;
 using WebApi.Model;
 using WebApi.Repository.Interfaces;
 
@@ -17,12 +21,15 @@ namespace ProjectFunctionalTesting.Controllers
         private readonly IMapper _mapper;
         private readonly IBaseRepository<Product> _productRepository;
         private readonly IBaseRepository<Category> _categoryRepository;
+        private readonly ApplicationDBContext _context;
 
-        public ProductController(IBaseRepository<Product> productRepository, IMapper mapper, IBaseRepository<Category> categoryRepository)
+
+        public ProductController(IBaseRepository<Product> productRepository, IMapper mapper, IBaseRepository<Category> categoryRepository, ApplicationDBContext context)
         {
             _mapper = mapper;
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _context = context;
         }
         [HttpGet]
         [Route("Index")]
@@ -171,5 +178,71 @@ namespace ProjectFunctionalTesting.Controllers
                 return BadRequest("Failed to delete product: " + ex.Message);
             }
         }
+        [HttpGet]
+        [Route("GetAllFeedBack/{id}")]
+        public async Task<IActionResult> GetAllFeedBack(int id)
+        {
+            var comments = await _context.Feedbacks.Where(p => p.ProductId == id).ToListAsync();
+            return Ok(comments);
+        }
+        [HttpPost]
+        [Route("PostFeedback/{productId}")]
+        public async Task<IActionResult> PostFeedback(int productId, FeedbackVM feedback)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.Authentication)?.Value;
+                if (userId == null)
+                    return Unauthorized();
+                var userName = _context.Users.Where(p=>p.Id == userId).FirstOrDefault()?.UserName;
+                if (userName == null)
+                    return BadRequest();
+                var product = await _productRepository.FindByIdAsync(p => p.ProductId == productId).FirstOrDefaultAsync();
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+                var newFeedback = new FeedbackVM
+                {
+                    
+                    Start = feedback.Start,
+                    Comment = feedback.Comment,
+                };
+                var feedbackpost = _mapper.Map<Feedback>(feedback);
+                feedbackpost.ProductId= productId;
+                feedbackpost.userName= userName;
+                await _context.Feedbacks.AddAsync(feedbackpost);
+                await _context.SaveChangesAsync();
+
+                return Ok("Feedback posted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Failed to post feedback: " + ex.Message);
+            }
+        }
+        [HttpDelete]
+        [Route("DeleteFeedback/{id}")]
+        public async Task<IActionResult> DeleteFeedback(int id)
+        {
+            var userId = User.FindFirst(ClaimTypes.Authentication)?.Value;
+            if (userId == null)
+                return Unauthorized();
+
+            var feedback = await _context.Feedbacks.FindAsync(id);
+            if (feedback == null)
+                return NotFound("Feedback not found.");
+
+            var userName = await _context.Users.Where(u => u.Id == userId).Select(u => u.UserName).FirstOrDefaultAsync();
+            if (feedback.userName != userName)
+                return Forbid();
+
+            _context.Feedbacks.Remove(feedback);
+            await _context.SaveChangesAsync();
+
+            return Ok("Delete Success");
+        }
+
+
     }
 }
