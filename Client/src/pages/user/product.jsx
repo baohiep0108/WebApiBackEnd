@@ -76,7 +76,7 @@ function Product() {
                                                 </div>
                                                 <div className="p-6 text-center flex-1">
                                                     <h3 className="text-lg font-semibold text-gray-600">{prod.productName}</h3>
-                                                    <h4 className="text-xl text-gray-600 font-bold mt-2">${prod.productPrice}</h4>
+                                                    <h4 className="text-xl text-gray-600 font-bold mt-2">{prod.productPrice}đ</h4>
                                                 </div>
                                                 <button
                                                     onClick={()=>handleAddCart(prod.productId)}

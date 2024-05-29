@@ -13,7 +13,6 @@ export function EditProduct() {
     const [productName, setProductName] = useState('');
     const [price, setPrice] = useState('');
     const [details, setDetails] = useState('');
-    const [inventorNumber, setNumber] = useState('');
     const [file, setFile] = useState(null);
     const [getCategory, setCategory] = useState('');
     const { contents: category, isLoading, error: categoryError } = useSelector(state => state.category);
@@ -29,7 +28,6 @@ export function EditProduct() {
             setProductName(product.productName || '');
             setPrice(product.productPrice || '');
             setDetails(product.productDetails || '');
-            setNumber(product.inventorNumber || '');
             setCategory(product.categoryId || '');
         }
     }, [product]);
@@ -40,10 +38,8 @@ export function EditProduct() {
         formData.append('productName', productName);
         formData.append('productPrice', price);
         formData.append('productDetails', details);
-        formData.append('inventorNumber', inventorNumber);
         formData.append('categoryId', getCategory);
         formData.append('img', file);
-
         try {
             const response = await Instance.put(`/api/Product/Update/${id}`, formData);
             if (response.status === 200) {
@@ -115,22 +111,7 @@ export function EditProduct() {
                                     </select>
                                 </div>
                             </div>
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Inventor Number
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        value={inventorNumber}
-                                        onChange={(e) => setNumber(e.target.value)}
-                                        type="text"
-                                        name="city"
-                                        id="city"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    />
-                                </div>
-                            </div>
+
                             <div className="sm:col-span-2 sm:col-start-1">
                                 <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
                                     Img

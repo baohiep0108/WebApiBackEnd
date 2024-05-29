@@ -12,7 +12,6 @@ namespace WebApi.Model
         public int? ProductPrice { get; set; }
         public string? ProductDetails { get; set; }
         public string? Img { get; set; }
-        public int? InventorNumber { get; set; }
         public string? Status { get; set; }
         public int? CategoryId { get; set; }
         public virtual Category? Category { get; set; }

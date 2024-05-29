@@ -32,8 +32,6 @@ namespace ProjectFunctionalTesting.Controllers
                 .Include(c => c.Products) 
                 .Where(c => c.UserEmailAddress == userEmail)
                 .ToList();
-
-           
             return Ok(cartItems);
         }
         [HttpPost]

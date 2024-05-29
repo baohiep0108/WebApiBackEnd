@@ -30,7 +30,7 @@ namespace Server.Repository.Implementations
             pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
             pay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
-            pay.AddRequestData("vnp_OrderInfo","Thanh toán đơn hàng:"+$"{model.Name} {model.OrderDescription} {model.Amount}");
+            pay.AddRequestData("vnp_OrderInfo","Thanh toán đơn hàng:"+$"{model.Name} {model.Address} {model.phoneNumber} {model.OrderDescription} {model.Amount} ");
             pay.AddRequestData("vnp_OrderType", model.OrderType);
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);   
             pay.AddRequestData("vnp_TxnRef", tick);

@@ -48,7 +48,6 @@ namespace ProjectFunctionalTesting.Controllers
                 p.ProductPrice,
                 p.ProductDetails,
                 p.Img,
-                p.InventorNumber,
                 CategoryName = p.Category?.CategoryName ?? "Unknown"
             });
             return Ok(productDTOs);

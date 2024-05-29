@@ -124,7 +124,7 @@ function ProductDetails() {
                     <div className="lg:col-span-2">
                         <h2 className="text-2xl font-extrabold text-[#333]">{product.productName}</h2>
                         <div className="flex flex-wrap gap-4 mt-4">
-                            <p className="text-[#333] text-3xl font-bold">${product.productPrice}</p>
+                            <p className="text-[#333] text-3xl font-bold">{product.productPrice}đ</p>
                         </div>
                         <div className="flex space-x-2 mt-4">
                             {renderStarRating(calculateAverageRating(feedback))}

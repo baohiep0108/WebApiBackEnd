@@ -84,13 +84,13 @@ function Checkout() {
                             <div key={checkout.id} className="flex flex-col rounded-lg bg-white sm:flex-row">
                                 <img
                                     className="m-2 h-24 w-28 rounded-md border object-cover object-center"
-                                    src="https://images.unsplash.com/flagged/photo-1556637640-2c80d3201be8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8c25lYWtlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-                                    alt=""
+                                    src={`${import.meta.env.VITE_PUBLIC_IMG_URL}/api/Product/GetImage?name=${checkout.products.img}`}
+                                    alt="ảnh sản phẩm"
                                 />
                                 <div className="flex w-full flex-col px-4 py-4">
                                     <span className="font-semibold">{checkout.products.productName}</span>
                                     <span className="float-right text-gray-400">{checkout.products.productDetails}</span>
-                                    <p className="text-lg font-bold">${totalProduct(checkout.quantity, checkout.products.productPrice)}</p>
+                                    <p className="text-lg font-bold">{totalProduct(checkout.quantity, checkout.products.productPrice)}đ</p>
                                 </div>
                             </div>
                         ))}
@@ -178,7 +178,7 @@ function Checkout() {
 
                             <div className="mt-6 flex items-center justify-between">
                                 <p className="text-sm font-medium text-gray-900">Total</p>
-                                <p className="text-2xl font-semibold text-gray-900">${totalPrice}</p>
+                                <p className="text-2xl font-semibold text-gray-900">{totalPrice}đ</p>
                             </div>
                         </div>
                         <button type="submit" className="mt-4 mb-8 w-full rounded-md bg-gray-900 px-6 py-3 font-medium text-white">Place Order</button>
