@@ -53,7 +53,6 @@ export const orderSlice = createSlice({
                 state.error = action.error.message;
             })
 
-
             .addCase(placeOrder.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;
@@ -84,13 +83,7 @@ export const orderSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(UpdateOrder.fulfilled, (state, action) => {
-                state.isLoading = false;
-                const index = state.contents.findIndex(order => order.id === action.payload.id);
-                if (index !== -1) {
-                    state.contents[index] = action.payload;
-                }
-            })
+
             .addCase(UpdateOrder.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;

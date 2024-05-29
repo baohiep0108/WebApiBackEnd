@@ -91,11 +91,13 @@ function Order() {
                                     {renderStatusBadge(orderItem.status)}
 
                                     <div className="w-full grid sm:grid-cols-2 lg:flex lg:w-64 lg:items-center lg:justify-end gap-4">
-                                        <button type="button"
-                                                onClick={() => handleDeleteOrder(orderItem.orderId)}
-                                                className="w-full rounded-lg border border-red-700 px-3 py-2 text-center text-sm font-medium text-red-700 hover:bg-red-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900 lg:w-auto">
-                                            Cancel order
-                                        </button>
+                                        {orderItem.status === "Pending" && (
+                                            <button type="button"
+                                                    onClick={() => handleDeleteOrder(orderItem.orderId)}
+                                                    className="w-full rounded-lg border border-red-700 px-3 py-2 text-center text-sm font-medium text-red-700 hover:bg-red-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 lg:w-auto">
+                                                Cancel order
+                                            </button>
+                                        )}
                                         <a href={`/home/order/Details/${orderItem.orderId}`}
                                            className="w-full inline-flex justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700 lg:w-auto">
                                             <svg className="me-2 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">

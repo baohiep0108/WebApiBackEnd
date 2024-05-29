@@ -195,6 +195,7 @@ namespace ProjectFunctionalTesting.Controllers
                 if (userId == null)
                     return Unauthorized();
                 var userName = _context.Users.Where(p=>p.Id == userId).FirstOrDefault()?.UserName;
+                var userImg = _context.Users.Where(p => p.Id == userId).FirstOrDefault()?.ImgProfile;
                 if (userName == null)
                     return BadRequest();
                 var product = await _productRepository.FindByIdAsync(p => p.ProductId == productId).FirstOrDefaultAsync();
@@ -211,6 +212,7 @@ namespace ProjectFunctionalTesting.Controllers
                 var feedbackpost = _mapper.Map<Feedback>(feedback);
                 feedbackpost.ProductId= productId;
                 feedbackpost.userName= userName;
+                feedbackpost.ImgProfile= userImg;
                 await _context.Feedbacks.AddAsync(feedbackpost);
                 await _context.SaveChangesAsync();
 

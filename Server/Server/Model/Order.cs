@@ -6,7 +6,6 @@ namespace WebApi.Model
 
     public class Order
     {
-
         [Key]
         public int OrderId { get; set; } 
         public string? OrderDate { get; set; }

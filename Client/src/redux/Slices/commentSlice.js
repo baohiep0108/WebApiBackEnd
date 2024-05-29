@@ -30,11 +30,7 @@ export const commentSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(feedbackComment.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.contents = [...state.contents, action.payload];
-                state.error = null;
-            })
+
             .addCase(feedbackComment.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;

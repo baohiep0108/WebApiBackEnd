@@ -8,6 +8,7 @@ namespace Server.Model
         [Key]   
         public int? FeedBackId { get; set; }
         public string? userName { get; set; }
+        public string? ImgProfile { get; set; }
         public int? Start {  get; set; }
         public string? Comment { get; set; }
         public int? ProductId { get; set; }

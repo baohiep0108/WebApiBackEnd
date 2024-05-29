@@ -5,7 +5,6 @@ namespace Server.ViewModel
 {
     public class FeedbackVM
     {   
-     
         [Required(ErrorMessage = "Start is required")]
         [Range(1, 5, ErrorMessage = "Start must be between 1 and 5.")]
         public int? Start { get; set; }

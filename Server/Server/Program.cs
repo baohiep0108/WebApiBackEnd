@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Server.Repository.Implementations;
+using Server.Repository.Interfaces;
 using System.Text;
 using WebApi.Helper;
 using WebApi.Model;
@@ -53,6 +55,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                .AddDefaultTokenProviders();
 
 //add db
+builder.Services.AddScoped<IVnPay,VnPay>();
 builder.Services.AddScoped<IBaseRepository<Product>, ProductRepository>();
 builder.Services.AddScoped<IBaseRepository<Category>, CategoryRepository>();
 // Adding Authentication
@@ -106,5 +109,7 @@ app.UseSession();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 app.Run();
