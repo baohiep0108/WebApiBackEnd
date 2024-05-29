@@ -1,6 +1,6 @@
 // Redux Slice cho Order
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchOrder, fetchOrderForUser, placeOrder, OrderProduct, UpdateOrder, deleteOrder } from "@/redux/Thunk/order.js";
+import { fetchOrder, fetchOrderForUser,fetchOrderDetails, placeOrder, OrderProduct, UpdateOrder, deleteOrder } from "@/redux/Thunk/order.js";
 
 const initialState = {
     contents: [],
@@ -39,6 +39,20 @@ export const orderSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
+
+            .addCase(fetchOrderDetails.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchOrderDetails.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.contents = action.payload;
+            })
+            .addCase(fetchOrderDetails.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
 
             .addCase(placeOrder.pending, (state) => {
                 state.isLoading = true;
@@ -88,7 +102,7 @@ export const orderSlice = createSlice({
             })
             .addCase(deleteOrder.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.contents = state.contents.filter(order => order.id !== action.payload.id);
+                state.contents = state.contents.filter(order => order.orderId !== action.payload.orderId);
             })
             .addCase(deleteOrder.rejected, (state, action) => {
                 state.isLoading = false;

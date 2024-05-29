@@ -1,4 +1,3 @@
-// Thunks cho Order
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import Instance from "@/configs/instance.js";
 
@@ -9,11 +8,17 @@ export const fetchOrder = createAsyncThunk(
         return res.data;
     }
 );
-
 export const fetchOrderForUser = createAsyncThunk(
     'order/fetchOrderForUser',
     async (id) => {
-        const res = await Instance.get(`/api/Order/Show-order/${id}`);
+        const res = await Instance.get(`/api/Order/Show-order`);
+        return res.data;
+    }
+);
+export const fetchOrderDetails = createAsyncThunk(
+    'order/fetchOrderDetails',
+    async (id) => {
+        const res = await Instance.get(`/api/Order/Show-Order-Details/${id}`);
         return res.data;
     }
 );
@@ -44,8 +49,8 @@ export const UpdateOrder = createAsyncThunk(
 
 export const deleteOrder = createAsyncThunk(
     'order/deleteOrder',
-    async ({ productId, orderId }) => {
-        const res = await Instance.delete(`/api/Order/Delete-Order?orderId=${orderId}&productid=${productId}`);
+    async ({orderId}) => {
+        const res = await Instance.delete(`/api/Order/Delete-Order/${orderId}`);
         return res.data;
     }
 );

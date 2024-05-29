@@ -41,39 +41,11 @@ export const addProduct = createAsyncThunk(
     }
 );
 
-export const editProduct = createAsyncThunk(
-    'product/editProduct',
-    async ({ productData, id }) => {
-        const response = await Instance.post(`/api/Product/Edit/${id}`, productData);
-        return response.data;
-    }
-);
 
 export const deleteProduct = createAsyncThunk(
     'product/deleteProduct',
     async (id) => {
         const response = await Instance.delete(`/api/Product/Delete/${id}`);
-        return response.data;
-    }
-);
-export const fetchComment = createAsyncThunk(
-    'product/fetchComment',
-    async (id) => {
-        const response = await Instance.get(`/api/Product/GetAllFeedBack/${id}`);
-        return response.data;
-    }
-);
-export const feedback = createAsyncThunk(
-    'product/fetchComment',
-    async ({id,data}) => {
-        const response = await Instance.post(`/api/Product/PostFeedback/${id}`, data);
-        return response.data;
-    }
-);
-export const DeleteFeedback = createAsyncThunk(
-    'product/fetchComment',
-    async (id) => {
-        const response = await Instance.delete(`/api/Product/DeleteFeedback/${id}`);
         return response.data;
     }
 );

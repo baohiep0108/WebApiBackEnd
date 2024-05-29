@@ -1,28 +1,83 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
-import Instance from "@/configs/instance.js";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategory } from "@/redux/Thunk/category.js";
+import { addProduct } from "@/redux/Thunk/product.js";
+import { toast } from "react-toastify";
 
 function CreateProduct() {
     const navigate = useNavigate();
-    const [productName, setProductName] = useState(null);
-    const [price, setPrice] = useState(null);
-    const [details, setDetails] = useState(null);
-    const [inventorNumber, setNumber] = useState(null);
+    const [productName, setProductName] = useState('');
+    const [price, setPrice] = useState('');
+    const [details, setDetails] = useState('');
+    const [inventorNumber, setNumber] = useState('');
     const [file, setFile] = useState(null);
-    const [getCategory, setCategory] = useState(null);
-    const [categories, setCategories] = useState([]);
+    const [getCategory, setCategory] = useState('');
+    const [errors, setErrors] = useState({
+        productName: '',
+        price: '',
+        category: '',
+        inventorNumber: '',
+        file: ''
+    });
+    const dispatch = useDispatch();
+    const { contents: category, isLoading, error: categoryError } = useSelector(state => state.category);
 
     useEffect(() => {
-        Instance.get("/api/Category/Index")
-            .then(response => {
-                setCategories(response.data);
-            })
-            .catch(error => console.log(error));
-    }, []);
+        dispatch(fetchCategory());
+    }, [dispatch]);
+
+    const validateForm = () => {
+        let valid = true;
+        const newErrors = { ...errors };
+
+        if (!productName.trim()) {
+            newErrors.productName = 'Product name is required';
+            valid = false;
+        } else {
+            newErrors.productName = '';
+        }
+
+        if (!price.trim()) {
+            newErrors.price = 'Price is required';
+            valid = false;
+        } else {
+            newErrors.price = '';
+        }
+
+        if (!getCategory.trim()) {
+            newErrors.category = 'Category is required';
+            valid = false;
+        } else {
+            newErrors.category = '';
+        }
+
+        if (!inventorNumber.trim()) {
+            newErrors.inventorNumber = 'Inventor number is required';
+            valid = false;
+        } else {
+            newErrors.inventorNumber = '';
+        }
+
+        if (!file) {
+            newErrors.file = 'Image is required';
+            valid = false;
+        } else {
+            newErrors.file = '';
+        }
+
+        setErrors(newErrors);
+        return valid;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
         const formData = new FormData();
         formData.append('productName', productName);
         formData.append('productPrice', price);
@@ -31,12 +86,15 @@ function CreateProduct() {
         formData.append('categoryId', getCategory);
         formData.append('img', file);
         try {
-            await Instance.post("api/Product/Create", formData);
+            await dispatch(addProduct(formData));
             navigate("/dashboard/product");
+            toast.success("Product created successfully!");
         } catch (error) {
             console.log(error);
+            toast.error("Failed to create product. Please try again.");
         }
     }
+
     return (
         <div>
             <form onSubmit={handleSubmit}>
@@ -44,8 +102,7 @@ function CreateProduct() {
                     <div className="border-b border-gray-900/10 pb-12">
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="sm:col-span-3">
-                                <label htmlFor="first-name"
-                                       className="block text-sm font-medium leading-6 text-gray-900">
+                                <label htmlFor="product-name" className="block text-sm font-medium leading-6 text-gray-900">
                                     Product name
                                 </label>
                                 <div className="mt-2">
@@ -54,14 +111,15 @@ function CreateProduct() {
                                         onChange={(e) => setProductName(e.target.value)}
                                         type="text"
                                         name="product-name"
-                                        autoComplete="prodcut-name"
+                                        id="product-name"
+                                        autoComplete="off"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
+                                    {errors.productName && <p className="text-red-500 text-xs mt-1">{errors.productName}</p>}
                                 </div>
                             </div>
                             <div className="sm:col-span-3">
-                                <label htmlFor="last-name"
-                                       className="block text-sm font-medium leading-6 text-gray-900">
+                                <label htmlFor="price" className="block text-sm font-medium leading-6 text-gray-900">
                                     Price
                                 </label>
                                 <div className="mt-2">
@@ -69,34 +127,33 @@ function CreateProduct() {
                                         value={price}
                                         onChange={(e) => setPrice(e.target.value)}
                                         type="text"
-                                        name="last-name"
-                                        id="last-name"
-                                        autoComplete="family-name"
+                                        name="price"
+                                        id="price"
+                                        autoComplete="off"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
+                                    {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                                 </div>
                             </div>
                             <div className="sm:col-span-3">
-                                <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
+                                <label htmlFor="category" className="block text-sm font-medium leading-6 text-gray-900">
                                     Category
                                 </label>
                                 <div className="mt-2">
                                     <select
-                                        name="country"
-                                        autoComplete="Category-name"
                                         value={getCategory}
                                         onChange={(e) => setCategory(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
                                         <option value="">Select category</option>
-                                        {categories.map(category => (
-                                            <option key={category.categoryId}
-                                                    value={category.categoryId}>{category.categoryName}</option>
+                                        {category.map(cat => (
+                                            <option key={cat.categoryId} value={cat.categoryId}>{cat.categoryName}</option>
                                         ))}
                                     </select>
+                                    {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
                                 </div>
                             </div>
                             <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
+                                <label htmlFor="inventorNumber" className="block text-sm font-medium leading-6 text-gray-900">
                                     Inventor Number
                                 </label>
                                 <div className="mt-2">
@@ -104,16 +161,17 @@ function CreateProduct() {
                                         value={inventorNumber}
                                         onChange={(e) => setNumber(e.target.value)}
                                         type="text"
-                                        name="city"
-                                        id="city"
-                                        autoComplete="address-level2"
+                                        name="inventorNumber"
+                                        id="inventorNumber"
+                                        autoComplete="off"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
+                                    {errors.inventorNumber && <p className="text-red-500 text-xs mt-1">{errors.inventorNumber}</p>}
                                 </div>
                             </div>
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Img
+                            <div className=" sm:col-span-2 sm:col-start-1">
+                                <label htmlFor="img" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Image
                                 </label>
                                 <div className="mt-2">
                                     <input
@@ -124,20 +182,20 @@ function CreateProduct() {
                                         accept="image/*"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
+                                    {errors.file && <p className="text-red-500 text-xs mt-1">{errors.file}</p>}
                                 </div>
                             </div>
                             <div className="sm:col-span-5">
-                                <label htmlFor="first-name"
-                                       className="block text-sm font-medium leading-6 text-gray-900">
-                                    Detail
+                                <label htmlFor="details" className="block text-sm font-medium leading-6 text-gray-900">
+                                    Details
                                 </label>
                                 <div className="mt-2">
                                     <textarea
                                         value={details}
                                         onChange={(e) => setDetails(e.target.value)}
-                                        typeof="text"
-                                        name="details-name"
-                                        autoComplete="product-name"
+                                        name="details"
+                                        id="details"
+                                        autoComplete="off"
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -145,6 +203,7 @@ function CreateProduct() {
                         </div>
                     </div>
                 </div>
+
                 <div className="mt-6 flex items-center justify-end gap-x-6">
                     <Link to={"/dashboard/product"}>
                         <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
@@ -164,3 +223,4 @@ function CreateProduct() {
 }
 
 export default CreateProduct;
+

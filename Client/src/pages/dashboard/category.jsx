@@ -18,35 +18,47 @@ export function Category() {
             toast.success(location.state.toastMessage);
         }
     }, [dispatch, location.state]);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const handleCreateCategory = async (e) => {
         e.preventDefault();
-        if (newCategoryName.trim()) {
-            try {
-                await dispatch(addCategory({ categoryName: newCategoryName }));
-                toast.success("Category added successfully!");
-                setNewCategoryName('');
-                setShowForm(false);
-            } catch (err) {
-                toast.error(`Error: ${err.message}`);
-            }
-        } else {
+        if (newCategoryName.trim() === '') {
             toast.error("Category name cannot be empty!");
+            return;
+        }
+        const isDuplicate = category.some(cat => cat.categoryName.toLowerCase() === newCategoryName.toLowerCase());
+        if (isDuplicate) {
+            toast.error("Category name already exists!");
+            return;
+        }
+        try {
+            await dispatch(addCategory({ categoryName: newCategoryName }));
+            toast.success("Category added successfully!");
+            setNewCategoryName('');
+            dispatch(fetchCategory());
+            setShowForm(false);
+        } catch (err) {
+            toast.error(`Error: ${err.message}`);
         }
     };
+
+    const filteredCategory = category.filter(category => {
+        return category.categoryName.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
     const handleEditCategory = (categoryId) => {
         navigate(`edit/${categoryId}`);
     };
 
-    const handleDeleteCategory = async (categoryId) => {
+    const handleDeleteCategory = async (id) => {
         try {
-            await dispatch(deleteCategory(categoryId));
+            await dispatch(deleteCategory(id));
+            dispatch(fetchCategory());
             toast.success("Category deleted successfully!");
         } catch (err) {
             toast.error("Category delete failed!");
         }
     };
-
 
     const handleToggleForm = () => {
         setShowForm(!showForm);
@@ -54,47 +66,58 @@ export function Category() {
 
     return (
         <div className="mt-12 mb-8 flex flex-col gap-12">
-            <ToastContainer />
+            <ToastContainer/>
+            <div className="flex justify-between items-center mb-4">
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Search by category name"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded"
+                    />
+                </div>
+                <div className="flex flex-col">
+                    <div className="flex justify-between items-center mb-3">
+                        <button
+                            onClick={handleToggleForm}
+                            className="flex-shrink-0 bg-green-500 hover:bg-green-700 border-green-500 hover:border-green-700 text-sm border-4 text-white py-1 px-2 rounded"
+                            type="button"
+                        >
+                            Create new
+                        </button>
+                    </div>
+                    {showForm && (
+                        <form className="w-full max-w-sm" onSubmit={handleCreateCategory}>
+                            <div className="flex items-center border-b border-teal-500 py-2">
+                                <input
+                                    className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                                    type="text"
+                                    placeholder="Category Name"
+                                    aria-label="Category Name"
+                                    value={newCategoryName}
+                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                />
+                                <button
+                                    className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
+                                    type="submit"
+                                >
+                                    Submit
+                                </button>
+                                <button
+                                    className="flex-shrink-0 border-transparent border-4 text-teal-500 hover:text-teal-800 text-sm py-1 px-2 rounded"
+                                    type="button"
+                                    onClick={() => setShowForm(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
             <Card>
                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                    <div className="flex flex-col">
-                        <div className="flex justify-between items-center mb-3">
-                            <button
-                                onClick={handleToggleForm}
-                                className="flex-shrink-0 bg-green-500 hover:bg-green-700 border-green-500 hover:border-green-700 text-sm border-4 text-white py-1 px-2 rounded"
-                                type="button"
-                            >
-                                Create new
-                            </button>
-                        </div>
-                        {showForm && (
-                            <form className="w-full max-w-sm" onSubmit={handleCreateCategory}>
-                                <div className="flex items-center border-b border-teal-500 py-2">
-                                    <input
-                                        className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-                                        type="text"
-                                        placeholder="Category Name"
-                                        aria-label="Category Name"
-                                        value={newCategoryName}
-                                        onChange={(e) => setNewCategoryName(e.target.value)}
-                                    />
-                                    <button
-                                        className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
-                                        type="submit"
-                                    >
-                                        Submit
-                                    </button>
-                                    <button
-                                        className="flex-shrink-0 border-transparent border-4 text-teal-500 hover:text-teal-800 text-sm py-1 px-2 rounded"
-                                        type="button"
-                                        onClick={() => setShowForm(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </form>
-                        )}
-                    </div>
                     <table className="w-full min-w-[640px] table-auto">
                         <thead>
                         <tr>
@@ -114,7 +137,7 @@ export function Category() {
                         </tr>
                         </thead>
                         <tbody>
-                        {category.map((category, index) => (
+                        {filteredCategory.map((category, index) => (
                             <tr key={category.categoryId}>
                                 <td className="border-b border-blue-gray-50 py-3 px-5">
                                     <Typography className="text-xs font-semibold text-blue-gray-600">

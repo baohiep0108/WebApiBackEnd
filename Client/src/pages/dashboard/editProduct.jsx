@@ -1,42 +1,39 @@
-import React, {useEffect, useState} from 'react';
-import {Link, useNavigate, useParams} from "react-router-dom";
-import Instance from "@/configs/instance.js";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategory } from '@/redux/Thunk/category.js';
+import { fetchProductById } from '@/redux/Thunk/product.js';
+import { toast } from 'react-toastify';
+import Instance from '@/configs/instance.js';
+
 export function EditProduct() {
     const { id } = useParams();
-    const navigate = useNavigate()
-    const [productName, setProductName] = useState(null);
-    const [price, setPrice] = useState(null);
-    const [details, setDetails] = useState(null);
-    const [inventorNumber, setNumber] = useState(null);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [productName, setProductName] = useState('');
+    const [price, setPrice] = useState('');
+    const [details, setDetails] = useState('');
+    const [inventorNumber, setNumber] = useState('');
     const [file, setFile] = useState(null);
-    const [getCategory, setCategory] = useState(null);
-    const [categories, setCategories] = useState([]);
-    const [showProduct, setShowProduct]= useState([])
+    const [getCategory, setCategory] = useState('');
+    const { contents: category, isLoading, error: categoryError } = useSelector(state => state.category);
+    const { contents: product, isPrLoading, error: productError } = useSelector(state => state.product);
+
     useEffect(() => {
-        Instance.get("/api/Category/Index")
-            .then(response => {
-                setCategories(response.data);
-                console.log(response.data)
-            })
-            .catch(error => console.log(error));
-    }, []);
+        dispatch(fetchCategory());
+        dispatch(fetchProductById(id));
+    }, [dispatch, id]);
+
     useEffect(() => {
-        Instance.get(`/api/Product/GetById/${id}`)
-            .then(response => {
-                setShowProduct(response.data);
-                console.log(response.data)
-            })
-            .catch(error => console.log(error));
-    }, []);
-    useEffect(() => {
-        if (showProduct) {
-            setProductName(showProduct.productName);
-            setPrice(showProduct.productPrice);
-            setDetails(showProduct.productDetails);
-            setNumber(showProduct.inventorNumber);
+        if (product) {
+            setProductName(product.productName || '');
+            setPrice(product.productPrice || '');
+            setDetails(product.productDetails || '');
+            setNumber(product.inventorNumber || '');
+            setCategory(product.categoryId || '');
         }
-    }, [showProduct]);
-    
+    }, [product]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -46,11 +43,18 @@ export function EditProduct() {
         formData.append('inventorNumber', inventorNumber);
         formData.append('categoryId', getCategory);
         formData.append('img', file);
+
         try {
-            await Instance.put(`api/Product/Update/${id}`, formData);
-            navigate("/dashboard/product");
+            const response = await Instance.put(`/api/Product/Update/${id}`, formData);
+            if (response.status === 200) {
+                toast.success("Product updated successfully!");
+                navigate("/dashboard/product");
+            } else {
+                toast.error("Failed to update product. Please try again.");
+            }
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            toast.error("Failed to update product. Please try again.");
         }
     }
     return (
@@ -104,7 +108,7 @@ export function EditProduct() {
                                         onChange={(e) => setCategory(e.target.value)}
                                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
                                         <option value="">Select category</option>
-                                        {categories.map(category => (
+                                        {category.map(category => (
                                             <option key={category.categoryId}
                                                     value={category.categoryId}>{category.categoryName}</option>
                                         ))}
@@ -127,7 +131,7 @@ export function EditProduct() {
                                     />
                                 </div>
                             </div>
-                            <div className="sm:col-span-2">
+                            <div className="sm:col-span-2 sm:col-start-1">
                                 <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
                                     Img
                                 </label>

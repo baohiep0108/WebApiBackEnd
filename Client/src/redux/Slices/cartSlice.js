@@ -1,11 +1,12 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {AddCart, deleteAllCart, deleteCart, fetchCart, updateCart} from "@/redux/Thunk/cart.js";
+import { createSlice } from "@reduxjs/toolkit";
+import { AddCart, deleteAllCart, deleteCart, fetchCart, updateCart } from "@/redux/Thunk/cart.js";
 
-const  initialState = {
+const initialState = {
     contents: [],
     isLoading: false,
     error: null,
 };
+
 export const cartSlice = createSlice({
     name: 'cart',
     initialState,
@@ -14,12 +15,12 @@ export const cartSlice = createSlice({
         builder
             .addCase(fetchCart.pending, (state) => {
                 state.isLoading = true;
-                state.error = null; // Reset error state
+                state.error = null;
             })
             .addCase(fetchCart.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.contents = action.payload;
-                state.error = null; // Reset error state
+                state.error = null;
             })
             .addCase(fetchCart.rejected, (state, action) => {
                 state.isLoading = false;
@@ -27,12 +28,7 @@ export const cartSlice = createSlice({
             })
             .addCase(AddCart.pending, (state) => {
                 state.isLoading = true;
-                state.error = null; // Reset error state
-            })
-            .addCase(AddCart.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.contents = action.payload;
-                state.error = null; // Reset error state
+                state.error = null;
             })
             .addCase(AddCart.rejected, (state, action) => {
                 state.isLoading = false;
@@ -40,11 +36,6 @@ export const cartSlice = createSlice({
             })
             .addCase(updateCart.pending, (state) => {
                 state.isLoading = true;
-                state.error = null; // Reset error state
-            })
-            .addCase(updateCart.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.contents = action.payload;
                 state.error = null;
             })
             .addCase(updateCart.rejected, (state, action) => {
@@ -53,11 +44,6 @@ export const cartSlice = createSlice({
             })
             .addCase(deleteCart.pending, (state) => {
                 state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(deleteCart.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.contents = action.payload;
                 state.error = null;
             })
             .addCase(deleteCart.rejected, (state, action) => {

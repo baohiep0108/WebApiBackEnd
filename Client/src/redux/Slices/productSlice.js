@@ -5,7 +5,6 @@ import {
     fetchProductById,
     fetchProductImg,
     addProduct,
-    editProduct,
     deleteProduct
 } from "@/redux/Thunk/product.js";
 
@@ -76,31 +75,18 @@ export const productSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
-            .addCase(editProduct.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(editProduct.fulfilled, (state, action) => {
-                state.isLoading = false;
-                const index = state.contents.findIndex(product => product.id === action.payload.id);
-                if (index !== -1) {
-                    state.contents[index] = action.payload;
-                }
-            })
-            .addCase(editProduct.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.error.message;
-            })
             .addCase(deleteProduct.pending, (state) => {
                 state.isLoading = true;
             })
             .addCase(deleteProduct.fulfilled, (state, action) => {
-            state.isLoading = false;
-            state.contents.pop(action.payload)
+                state.isLoading = false;
+                state.contents = state.contents.filter(product => product.productId !== action.payload.productId);
             })
             .addCase(deleteProduct.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;
-            });
+            })
+
     },
 });
 

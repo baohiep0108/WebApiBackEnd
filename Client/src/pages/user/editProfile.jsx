@@ -3,13 +3,11 @@ import AuthIdUser from "@/configs/AuthIdUser.js";
 import Instance from "@/configs/instance.js";
 import {Link} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
-import userProfile from "../../../public/img/user-profile.jpg";
 import {toast, ToastContainer} from "react-toastify";
 
 function EditProfile() {
     const navigate= useNavigate()
     const id = AuthIdUser();
-    const [getImg,setImg]=useState(null)
     const [getUpImg, setUpImg] = useState(null);
     const [getUserName, setUserName]= useState(null);
     const [getEmail,setEmail]= useState(null);
@@ -33,7 +31,6 @@ function EditProfile() {
             .then((response) => {
                 const dataUser = response.data;
                 setUserName(dataUser.userName);
-                setImg(dataUser.imgProfile)
                 setEmail(dataUser.email);
                 setGender(dataUser.gender)
                 setAddress(dataUser.address);
@@ -81,34 +78,6 @@ function EditProfile() {
                         <div className="w-full bg-white shadow overflow-hidden sm:rounded-lg mb-8">
                             <div className="px-4 py-5 sm:px-6">
                                 <ToastContainer/>
-                                <div className="mx-auto w-64 text-center">
-                                    <div className="relative w-64">
-                                        <img className="w-64 h-64 rounded-full absolute"
-                                             src={userProfile||`https://localhost:7118/api/User/GetImage?name=${getImg}`}
-                                             alt=""/>
-                                        <form onSubmit={handleSubmitImg}>
-                                            <label
-                                                className="w-64 h-64 group hover:bg-gray-200 opacity-60 rounded-full absolute flex justify-center items-center cursor-pointer transition duration-500"
-                                            >
-                                                <img
-                                                    className="hidden group-hover:block w-12"
-                                                    src="https://www.svgrepo.com/show/33565/upload.svg"
-                                                    alt=""
-                                                />
-                                                <input
-                                                    onChange={(e) => setUpImg(e.target.files[0])}
-                                                    type="file"
-                                                    className="hidden"
-                                                />
-                                            </label>
-                                            <button
-                                                className="bg-blue-500 hover:bg-blue-700 p-2 relative text-white z-auto mt-72 rounded-sm"
-                                                type="submit">
-                                                Update Image
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
                                 <div className="z-auto">
 
                                     <form onSubmit={handleSubmitProfile}>
@@ -181,7 +150,7 @@ function EditProfile() {
                                         </div>
                                         <Link to="/home/profile">
                                             <button type="button"
-                                                    className="bottom-0 right-0 bg-red-500 py-2 px-5 mt-4 mr-4 hover:bg-red-700 text-white rounded-sm">Cancel
+                                                    className="bottom-0 right-0 bg-red-500 py-2 px-5 mt-4 mr-4 hover:bg-red-700 text-white rounded-sm">Exit
                                             </button>
                                         </Link>
                                         <button type="submit"

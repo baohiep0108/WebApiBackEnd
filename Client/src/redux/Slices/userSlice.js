@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
     fetchAllUser,
     fetchUserImg,
-
     fetchUserByRole,
     fetchUserById,
     updateUserById,
@@ -36,9 +35,6 @@ export const userSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
-            .addCase(fetchUserImg.pending, (state) => {
-                state.isLoading = true;
-            })
             .addCase(fetchUserImg.fulfilled, (state, action) => {
                 state.isLoading = false;
                 const userIndex = state.contents.findIndex(user => user.name === action.meta.arg);
@@ -66,10 +62,7 @@ export const userSlice = createSlice({
             })
             .addCase(fetchUserById.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const userIndex = state.contents.findIndex(user => user.id === action.meta.arg);
-                if (userIndex !== -1) {
-                    state.contents[userIndex] = action.payload;
-                }
+                state.contents = action.payload;
             })
             .addCase(fetchUserById.rejected, (state, action) => {
                 state.isLoading = false;
@@ -94,7 +87,7 @@ export const userSlice = createSlice({
             })
             .addCase(deleteUserById.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.contents = state.contents.filter(user => user.id !== action.meta.arg);
+                state.contents.pop(action.payload);
             })
             .addCase(deleteUserById.rejected, (state, action) => {
                 state.isLoading = false;

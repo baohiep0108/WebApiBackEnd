@@ -1,20 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { Link, useNavigate, useParams } from "react-router-dom";
-import Instance from "@/configs/instance.js";
+import { UpdateOrder} from "@/redux/Thunk/order.js";
+import {toast} from "react-toastify";
+import {useDispatch} from "react-redux";
 
 function EditOrder() {
     const navigate = useNavigate();
     const { id } = useParams();
     const [orderStatus, setOrderStatus] = useState('');
+    const dispatch= useDispatch();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        Instance.put(`https://localhost:7118/api/Order/Update-Order-Status?orderId=${id}&status=${orderStatus}`)
-            .then(() => {
-                navigate("/dashboard/order");
-            }).catch((err) => console.log(err));
+        try {
+            await dispatch(UpdateOrder({ orderId: id, status: orderStatus }));
+            toast.success("Order updated successfully!");
+            navigate("/dashboard/order");
+        } catch (err) {
+            toast.error("Order update failed!");
+        }
     }
+
 
     const handleStatusChange = (e) => {
         setOrderStatus(e.target.value);
@@ -38,12 +44,11 @@ function EditOrder() {
                                         name="street-address"
                                         id="street-address"
                                         autoComplete="street-address"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                    >
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                         <option value="">--Select status--</option>
                                         <option value="Pending">Pending</option>
-                                        <option value="Delivery">Delivery</option>
-                                        <option value="Received">Received</option>
+                                        <option value="In transit">In transit</option>
+                                        <option value="Confirmed">Confirmed</option>
                                     </select>
                                 </div>
                             </div>

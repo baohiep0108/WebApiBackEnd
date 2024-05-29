@@ -1,100 +1,112 @@
-import React, { useEffect, useState } from 'react';
-import Instance from "@/configs/instance.js";
-import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteOrder, fetchOrderForUser } from "@/redux/Thunk/order.js";
+import { toast, ToastContainer } from "react-toastify";
 
 function Order() {
-    const [orders, setOrders] = useState([]);
     const navigate = useNavigate();
-
+    const dispatch = useDispatch();
+    const { contents: order, isLoading, error } = useSelector(state => state.order);
+    const [searchTerm, setSearchTerm] = useState('');
     useEffect(() => {
-        fetchOrder();
-    }, []);
+        dispatch(fetchOrderForUser());
+    }, [dispatch]);
 
-    const fetchOrder = () => {
-        Instance.get("api/Order/Show-order")
-            .then(response => {
-                console.log("order", response.data);
-                setOrders(response.data);
-            })
-            .catch((err) => console.log(err));
-    }
+    const handleDeleteOrder = async (id) => {
+        try {
+            await dispatch(deleteOrder({ orderId: id }));
+            await dispatch(fetchOrderForUser());
+            toast.success("Delete Order Success");
+        } catch (err) {
+            toast.error("Delete Order fail");
+            console.error(err);
+        }
+    };
 
-    const handleDelete = (orderId, productId) => {
-        Instance.delete("/api/Order/Delete-Order?orderId=" + orderId + "&productId=" + productId)
-            .then(() => {
-                toast.success("Delete order success!");
-                fetchOrder();
-            })
-            .catch((err) => console.log(err));
+    const renderStatusBadge = (status) => {
+        switch (status) {
+            case "Pending":
+                return (
+                    <dd className="me-2 mt-1.5 inline-flex items-center rounded bg-primary-100 px-2.5 py-0.5 text-xs font-medium text-primary-800 dark:bg-primary-900 dark:text-primary-300">
+                        <svg className="me-1 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 4h-13m13 16h-13M8 20v-3.333a2 2 0 0 1 .4-1.2L10 12.6a1 1 0 0 0 0-1.2L8.4 8.533a2 2 0 0 1-.4-1.2V4h8v3.333a2 2 0 0 1-.4 1.2L13.957 11.4a1 1 0 0 0 0 1.2l1.643 2.867a2 2 0 0 1 .4 1.2V20H8Z"/>
+                        </svg>
+                        {status}
+                    </dd>
+                );
+            case "In transit":
+                return (
+                    <dd className="me-2 mt-1.5 inline-flex items-center rounded bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                        <svg className="me-1 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h6l2 4m-8-4v8m0-8V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v9h2m8 0H9m4 0h2m4 0h2v-4m0 0h-5m3.5 5.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm-10 0a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                        </svg>
+                        {status}
+                    </dd>
+                );
+            case "Confirmed":
+                return (
+                    <dd className="me-2 mt-1.5 inline-flex items-center rounded bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
+                        <svg className="me-1 h-3 w-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>
+                        </svg>
+                        {status}
+                    </dd>
+                );
+            default:
+                return null;
+        }
     };
 
     return (
-        <section className="py-24 relative">
-            <div className="w-full max-w-7xl px-4 md:px-5 lg:px-6 mx-auto">
-                <ToastContainer />
-                <div className="main-box border border-gray-200 rounded-xl pt-6 max-w-xl lg:mx-auto lg:max-w-full">
-                    <div className="w-full px-3 min-[400px]:px-6">
-                        {orders.map(orderItem => (
-                            <div className="flex flex-col lg:flex-row items-center py-6 border-b border-gray-200 gap-6 w-full" key={orderItem.id}>
-                                <div className="img-box w-full lg:max-w-[140px]">
-                                    <img src={`https://localhost:7118/api/Product/GetImage?name=${orderItem.imageProductName}`}
-                                         alt="Premium Watch image" className="aspect-square w-full lg:max-w-[140px]" />
-                                </div>
-                                <div className="flex flex-row items-center w-full">
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 w-full">
-                                        <div className="flex items-center">
-                                            <div>
-                                                <h2 className="font-semibold text-xl leading-8 text-black mb-3">{orderItem.productName}</h2>
-                                                <div className="flex items-center">
-                                                    <p className="font-medium text-base leading-7 text-black">Qty: <span className="text-gray-500">{orderItem.quantity}</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-5 gap-3 lg:gap-0">
-                                            <div className="col-span-5 lg:col-span-1 flex items-center mt-3 lg:mt-0">
-                                                <div className="flex gap-3 lg:block">
-                                                    <p className="font-medium text-sm leading-7 text-black">Price</p>
-                                                    <p className="lg:mt-4 font-medium text-sm leading-7 text-indigo-600">${orderItem.price}</p>
-                                                </div>
-                                            </div>
-                                            <div className="col-span-5 lg:col-span-2 flex items-center mt-3 lg:mt-0">
-                                                <div className="flex gap-3 lg:block">
-                                                    <p className="font-medium text-sm leading-7 text-black">Status</p>
-                                                    <p className="font-medium text-sm leading-6 py-0.5 px-3 whitespace-nowrap rounded-full lg:mt-3 bg-emerald-50 text-emerald-600">{orderItem.status}</p>
-                                                </div>
-                                            </div>
-                                            <div className="col-span-5 lg:col-span-2 flex items-center mt-3 lg:mt-0">
-                                                <div className="flex gap-3 lg:block">
-                                                    <p className="font-medium text-sm whitespace-nowrap leading-6 text-black">Expected Delivery Time</p>
-                                                    <p className="font-medium text-base whitespace-nowrap leading-7 lg:mt-3 text-emerald-500">{orderItem.orderDate}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+        <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
+            <ToastContainer />
+            <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+                <div className="mx-auto max-w-5xl">
+                    <div className="gap-4 sm:flex sm:items-center sm:justify-between">
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">My orders</h2>
+                    </div>
 
-                                    {/* Vô hiệu hóa nút xóa nếu trạng thái không phải là "Pending" */}
-                                    {orderItem.status !== 'Pending' &&
-                                        <button disabled className="opacity-50 cursor-not-allowed rounded-full group flex items-center justify-center focus-within:outline-red-500">
-                                            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <circle className="fill-red-50 transition-all duration-500 group-hover:fill-red-400" cx="17" cy="17" r="17" fill="" />
-                                                <path className="stroke-red-500 transition-all duration-500 group-hover:stroke-white" d="M14.1673 13.5997V12.5923C14.1673 11.8968 14.7311 11.333 15.4266 11.333H18.5747C19.2702 11.333 19.834 11.8968 19.834 12.5923V13.5997M19.834 13.5997C19.834 13.5997 14.6534 13.5997 11.334 13.5997C6.90804 13.5998 27.0933 13.5998 22.6673 13.5997C21.5608 13.5997 19.834 13.5997 19.834 13.5997ZM12.4673 13.5997H21.534V18.8886C21.534 20.6695 21.534 21.5599 20.9807 22.1131C20.4275 22.6664 19.5371 22.6664 17.7562 22.6664H16.2451C14.4642 22.6664 13.5738 22.6664 13.0206 22.1131C12.4673 21.5599 12.4673 20.6695 12.4673 18.8886V13.5997Z" stroke="#EF4444" strokeWidth="1.6" strokeLinecap="round" />
-                                            </svg>
+                    <div className="mt-6 flow-root sm:mt-8">
+                        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                            {order.map((orderItem) => (
+                                <div key={orderItem.id} className="flex flex-wrap items-center gap-y-4 py-6">
+                                    <dl className="w-1/2 sm:w-1/4 lg:w-auto lg:flex-1">
+                                        <dt className="text-base font-medium text-gray-500 dark:text-gray-400">Order ID:</dt>
+                                        <dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">
+                                            <a href={`/home/order/Details/${orderItem.orderId}`} className="hover:underline">#{orderItem.orderId}</a>
+                                        </dd>
+                                    </dl>
+
+                                    <dl className="w-1/2 sm:w-1/4 lg:w-auto lg:flex-1">
+                                        <dt className="text-base font-medium text-gray-500 dark:text-gray-400">Date:</dt>
+                                        <dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">{orderItem.orderDate}</dd>
+                                    </dl>
+
+                                    <dl className="w-1/2 sm:w-1/4 lg:w-auto lg:flex-1">
+                                        <dt className="text-base font-medium text-gray-500 dark:text-gray-400">Price:</dt>
+                                        <dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">${orderItem.price}</dd>
+                                    </dl>
+
+                                    {renderStatusBadge(orderItem.status)}
+
+                                    <div className="w-full grid sm:grid-cols-2 lg:flex lg:w-64 lg:items-center lg:justify-end gap-4">
+                                        <button type="button"
+                                                onClick={() => handleDeleteOrder(orderItem.orderId)}
+                                                className="w-full rounded-lg border border-red-700 px-3 py-2 text-center text-sm font-medium text-red-700 hover:bg-red-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-300 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900 lg:w-auto">
+                                            Cancel order
                                         </button>
-                                    }
-                                    {/* Nút xóa */}
-                                    {orderItem.status === 'Pending' &&
-                                        <button onClick={() => handleDelete(orderItem.orderId, orderItem.productId)} className="rounded-full group flex items-center justify-center focus-within:outline-red-500">
-                                            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <circle className="fill-red-50 transition-all duration-500 group-hover:fill-red-400" cx="17" cy="17" r="17" fill="" />
-                                                <path className="stroke-red-500 transition-all duration-500 group-hover:stroke-white" d="M14.1673 13.5997V12.5923C14.1673 11.8968 14.7311 11.333 15.4266 11.333H18.5747C19.2702 11.333 19.834 11.8968 19.834 12.5923V13.5997M19.834 13.5997C19.834 13.5997 14.6534 13.5997 11.334 13.5997C6.90804 13.5998 27.0933 13.5998 22.6673 13.5997C21.5608 13.5997 19.834 13.5997 19.834 13.5997ZM12.4673 13.5997H21.534V18.8886C21.534 20.6695 21.534 21.5599 20.9807 22.1131C20.4275 22.6664 19.5371 22.6664 17.7562 22.6664H16.2451C14.4642 22.6664 13.5738 22.6664 13.0206 22.1131C12.4673 21.5599 12.4673 20.6695 12.4673 18.8886V13.5997Z" stroke="#EF4444" strokeWidth="1.6" strokeLinecap="round" />
+                                        <a href={`/home/order/Details/${orderItem.orderId}`}
+                                           className="w-full inline-flex justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-primary-700 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700 lg:w-auto">
+                                            <svg className="me-2 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9.5V5.75A2.75 2.75 0 0 0 9.25 3h-5.5A2.75 2.75 0 0 0 1 5.75v8.5A2.75 2.75 0 0 0 3.75 17H7m4-7.5h5.25c.966 0 1.75.784 1.75 1.75v5.5c0 .966-.784 1.75-1.75 1.75H9.25c-.966 0-1.75-.784-1.75-1.75V13m4-3.5-4 4m0 0h3.5m-3.5 0V10"/>
                                             </svg>
-                                        </button>
-                                    }
+                                            Order Details
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

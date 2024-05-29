@@ -41,7 +41,7 @@ export default function Example() {
     const { contents: cart, isLoading, error } = useSelector(state => state.cart);
     useEffect(() => {
         dispatch(fetchCart());
-    }, [dispatch]);
+    }, []);
     return (
         <header className="bg-white">
             <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">

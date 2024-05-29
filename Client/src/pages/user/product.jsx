@@ -1,79 +1,88 @@
 import React, { useEffect, useState } from 'react';
 import Instance from "@/configs/instance.js";
-import {Spinner} from "@material-tailwind/react";
+import { Spinner } from "@material-tailwind/react";
+import { useDispatch, useSelector } from "react-redux";
+import {fetchCategory} from "@/redux/Thunk/category.js";
+import {useNavigate} from "react-router-dom";
+import {AddCart, fetchCart} from "@/redux/Thunk/cart.js";
+import {toast, ToastContainer} from "react-toastify";
 
 function Product() {
-    const [categories, setCategories] = useState([]);
+    const navigate= useNavigate()
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-
+    const dispatch = useDispatch();
+    const { contents: category, isLoading, error } = useSelector(state => state.category);
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await Instance.get("/api/Category/Index");
-                const dataCategory = response.data;
-                setCategories(dataCategory);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        fetchCategories();
-    }, []);
-
+        dispatch(fetchCategory());
+    }, [dispatch]);
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const promises = categories.map(async (category) => {
-                    const response = await Instance.get(`/api/Product/GetProduct-By-Category/${category.categoryId}`);
+                const promises = category.map(async (cat) => {
+                    const response = await Instance.get(`/api/Product/GetProduct-By-Category/${cat.categoryId}`);
                     return response.data;
                 });
                 const productsData = await Promise.all(promises);
                 const mergedProducts = productsData.flat();
                 setProducts(mergedProducts);
-                setLoading(false);
             } catch (error) {
                 console.log(error);
             }
         };
-
-        if (categories.length > 0) {
+        if (category.length > 0) {
             fetchProducts();
         }
-    }, [categories]);
+    }, [category]);
+    const handleViewProduct=(id)=>{
+        navigate(`/home/product/detail/${id}`)
+    }
+    const handleAddCart = async (id) => {
+        try {
+            await dispatch(AddCart(id))
+            await dispatch(fetchCart())
+            toast.success("Add cart success")
+        } catch (err) {
+            toast.error(`Add cart fail`);
+            err.message();
+        }
+    }
 
     return (
+        <>
+            <ToastContainer/>
         <div className="bg-white flex justify-center items-center min-h-screen">
-            {loading ? (
+            {isLoading ? (
                 <div className="flex justify-center items-center">
                     <Spinner className="w-20 h-20" size="large" color="blue" />
                 </div>
             ) : (
-                <div className=" mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-                    {categories.map(category => {
-                        const categoryProducts = products.filter(product => product.categoryId === category.categoryId);
+
+                <div className="font-sans">
+                    {category.map((cat) => {
+                        const categoryProducts = products.filter((prod) => prod.categoryId === cat.categoryId);
 
                         if (categoryProducts.length === 0) return null;
 
                         return (
-                            <div key={category.categoryId}>
-                                <h2 className="text-2xl font-bold tracking-tight text-gray-900">{category.categoryName}</h2>
-                                <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-                                    {categoryProducts.map(product => (
-                                        <div key={product.id} className="group relative">
-                                            <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                                                <img src={"https://localhost:7118/api/Product/GetImage?name="+product.img}
-                                                     alt={product.productName} className="h-full w-full object-cover object-center lg:h-full lg:w-full" />
-                                            </div>
-                                            <div className="mt-4 flex justify-between">
-                                                <div>
-                                                    <h3 className="text-sm text-gray-700">
-                                                        <a href={`home/product/detail/${product.productId}`}>
-                                                            <span aria-hidden="true" className="absolute inset-0"/>
-                                                            {product.productName}
-                                                        </a>
-                                                    </h3>
+                            <div key={cat.categoryId} className="p-4 mx-auto xl:max-w-7xl lg:max-w-5xl md:max-w-3xl max-w-lg">
+                                <h2 className="text-4xl font-extrabold text-gray-800 text-center mb-16">{cat.categoryName}</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    {categoryProducts.map((prod) => (
+                                        <div key={prod.id} className="bg-gray-100 p-2 overflow-hidden cursor-pointer">
+                                            <div className="bg-white flex flex-col h-full">
+                                                <div onClick={()=>handleViewProduct(prod.productId)}
+                                                    className="w-full h-[250px] overflow-hidden mx-auto aspect-w-16 aspect-h-8">
+                                                    <img src={prod.img ?`${import.meta.env.VITE_PUBLIC_IMG_URL}/api/Product/GetImage?name=${prod.img}`:productImg} alt="food1" className="h-full w-full object-cover"/>
                                                 </div>
-                                                <p className="text-sm font-medium text-gray-900">{product.productPrice}</p>
+                                                <div className="p-6 text-center flex-1">
+                                                    <h3 className="text-lg font-semibold text-gray-600">{prod.productName}</h3>
+                                                    <h4 className="text-xl text-gray-600 font-bold mt-2">${prod.productPrice}</h4>
+                                                </div>
+                                                <button
+                                                    onClick={()=>handleAddCart(prod.productId)}
+                                                    type="button" className="bg-gray-600 font-semibold hover:bg-gray-700 text-white text-sm px-2 py-2.5 w-full">
+                                                    Add to Cart
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
@@ -84,6 +93,7 @@ function Product() {
                 </div>
             )}
         </div>
+        </>
     );
 }
 

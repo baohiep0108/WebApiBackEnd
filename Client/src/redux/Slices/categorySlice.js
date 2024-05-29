@@ -54,7 +54,7 @@ export const categorySlice = createSlice({
             })
             .addCase(editCategory.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const index = state.contents.findIndex(category => category.id === action.meta.arg.id);
+                const index = state.contents.findIndex(category => category.categoryId === action.meta.arg.categoryId);
                 if (index !== -1) {
                     state.contents[index] = action.payload;
                 }
@@ -68,7 +68,7 @@ export const categorySlice = createSlice({
             })
             .addCase(deleteCategory.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.contents.pop(action.payload)
+                state.contents = state.contents.filter(category => category.categoryId !== action.payload.categoryId);
             })
             .addCase(deleteCategory.rejected, (state, action) => {
                 state.isLoading = false;

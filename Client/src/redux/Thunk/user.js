@@ -8,7 +8,6 @@ export const fetchAllUser = createAsyncThunk(
         return res.data;
     }
 );
-
 export const fetchUserImg = createAsyncThunk(
     'user/fetchUserImg',
     async (name) => {
