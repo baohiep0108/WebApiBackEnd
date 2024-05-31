@@ -1,6 +1,5 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import Instance from "@/configs/instance.js";
-
 export const fetchCart = createAsyncThunk(
     'cart/fetchCart',
     async () => {
@@ -15,7 +14,6 @@ export const AddCart = createAsyncThunk(
         return res.data;
     }
 );
-
 export const updateCart = createAsyncThunk(
     'cart/updateCart',
     async ({ product, quantity }) => {
@@ -23,7 +21,6 @@ export const updateCart = createAsyncThunk(
         return res.data;
     }
 );
-
 export const deleteCart = createAsyncThunk(
     'cart/deleteCart',
     async (id) => {
@@ -31,7 +28,6 @@ export const deleteCart = createAsyncThunk(
         return res.data;
     }
 );
-
 export const deleteAllCart = createAsyncThunk(
     'cart/deleteAllCart',
     async () => {

@@ -29,7 +29,7 @@ export function EditCategory() {
         e.preventDefault();
         try {
             await dispatch(editCategory({ id, categoryData: { categoryName: newCategoryName } })).unwrap();
-            navigate("/dashboard/category", { state: { toastMessage: "Category edited successfully!" } });
+            navigate("/dashboard/category", { state: { message: "Edit Category Success", style: "success" } });
         } catch (err) {
             toast.error(`Error: ${err.message}`);
         }

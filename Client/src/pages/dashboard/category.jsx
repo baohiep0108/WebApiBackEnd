@@ -7,18 +7,30 @@ import { addCategory, deleteCategory, fetchCategory } from "@/redux/Thunk/catego
 
 export function Category() {
     const [newCategoryName, setNewCategoryName] = useState('');
+    const location = useLocation();
     const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
-    const location = useLocation();
     const dispatch = useDispatch();
     const { contents: category, isLoading, error } = useSelector(state => state.category);
+
     useEffect(() => {
         dispatch(fetchCategory());
-        if (location.state?.toastMessage) {
-            toast.success(location.state.toastMessage);
-        }
-    }, [dispatch, location.state]);
+    }, [dispatch]);
+
     const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        const message = location.state?.message;
+        const style = location.state?.style;
+        if (message) {
+            toast.dismiss();
+            if (style === "success") {
+                toast.success(message);
+            } else {
+                toast.error(message);
+            }
+        }
+    }, [location.state]);
 
     const handleCreateCategory = async (e) => {
         e.preventDefault();
@@ -34,6 +46,7 @@ export function Category() {
         try {
             await dispatch(addCategory({ categoryName: newCategoryName }));
             toast.success("Category added successfully!");
+
             setNewCategoryName('');
             dispatch(fetchCategory());
             setShowForm(false);
@@ -64,6 +77,7 @@ export function Category() {
         setShowForm(!showForm);
     };
 
+
     return (
         <div className="mt-12 mb-8 flex flex-col gap-12">
             <ToastContainer/>
@@ -78,6 +92,7 @@ export function Category() {
                     />
                 </div>
                 <div className="flex flex-col">
+                    {!showForm && (
                     <div className="flex justify-between items-center mb-3">
                         <button
                             onClick={handleToggleForm}
@@ -87,6 +102,7 @@ export function Category() {
                             Create new
                         </button>
                     </div>
+                    )}
                     {showForm && (
                         <form className="w-full max-w-sm" onSubmit={handleCreateCategory}>
                             <div className="flex items-center border-b border-teal-500 py-2">

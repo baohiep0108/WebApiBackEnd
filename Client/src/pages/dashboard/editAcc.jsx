@@ -55,11 +55,9 @@ function EditAcc() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (!validate()) {
             return;
         }
-
         const data = {
             userName: getUserName,
             passwordHash: getPassword,
@@ -67,11 +65,10 @@ function EditAcc() {
             email: getEmail,
             address: getAddress,
         };
-
         dispatch(updateUserById({ id, data }))
             .then(() => {
                 toast.success("Account edited successfully!");
-                navigate("/dashboard/account", { state: { toastMessage: "Account edited successfully!" } });
+                navigate("/dashboard/account", { state: { message: "Edit Account Success", style: "success" } });
             })
             .catch((err) => {
                 console.log(err);
@@ -174,7 +171,7 @@ function EditAcc() {
                 </div>
 
                 <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="button" className="text-sm font-semibold leading-6 text-gray-900" onClick={() => navigate("/dashboard/account", { state: { toastMessage: "Edit cancelled." } })}>
+                    <button type="button" className="text-sm font-semibold leading-6 text-gray-900" onClick={() => navigate("/dashboard/account")}>
                         Cancel
                     </button>
                     <button

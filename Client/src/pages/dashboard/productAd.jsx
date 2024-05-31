@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { toast, ToastContainer } from "react-toastify";
 import { deleteProduct, fetchProduct } from "@/redux/Thunk/product.js";
@@ -9,16 +9,25 @@ export function ProductAd() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { contents: products, isLoading, error } = useSelector(state => state.product);
+    const location = useLocation()
+    useEffect(() => {
+        const message = location.state?.message;
+        const style = location.state?.style;
+        if (message) {
+            toast.dismiss();
+            if (style === "success") {
+                toast.success(message);
+            } else {
+                toast.error(message);
+            }
+        }
+    }, [location.state]);
 
     useEffect(() => {
         dispatch(fetchProduct());
-        if (location.state?.toastMessage) {
-            toast.success(location.state.toastMessage);
-        }
-    }, [dispatch, location.state]);
+    }, [dispatch]);
 
     const [searchTerm, setSearchTerm] = useState('');
-
     const handleDeleteProduct = async (id) => {
         try {
             await dispatch(deleteProduct(id));
@@ -32,7 +41,6 @@ export function ProductAd() {
     const handleEditProduct = (id) => {
         navigate(`edit/${id}`);
     };
-
     const filteredProducts = products.filter(product => {
         return product.productName.toLowerCase().includes(searchTerm.toLowerCase());
     });

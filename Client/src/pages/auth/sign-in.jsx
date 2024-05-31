@@ -13,10 +13,8 @@ export function SignIn() {
     function handleSubmit(event) {
         event.preventDefault();
 
-        // Reset errors
         setError({ email: '', password: '' });
 
-        // Simple validation
         let hasError = false;
         if (!email) {
             setError((prev) => ({ ...prev, email: 'Email is required' }));
@@ -36,7 +34,7 @@ export function SignIn() {
                 const token = response.data.token;
                 localStorage.setItem("token", token);
                 if (token) {
-                    Instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+                    Instance.defaults.headers.Authorization = `Bearer ${token}`;
                 }
                 const userRole = getUserRole();
                 if (userRole === "Admin") {
@@ -47,8 +45,7 @@ export function SignIn() {
                     console.log("Invalid role or no role specified");
                 }
             })
-            .catch((err) => {
-                console.log(err);
+            .catch(() => {
                 setError((prev) => ({ ...prev, email: 'Invalid email or password' }));
             });
     }

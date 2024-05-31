@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { Card, CardBody, Typography } from "@material-tailwind/react";
-import { Link } from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllUser, deleteUserById } from "@/redux/Thunk/user.js";
@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export function Account() {
     const dispatch = useDispatch();
+    const location = useLocation();
     const navigate = useNavigate();
     const { contents: users, isLoading, error } = useSelector(state => state.user);
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,10 +19,8 @@ export function Account() {
 
     useEffect(() => {
         dispatch(fetchAllUser());
-        if (location.state?.toastMessage) {
-            toast.success(location.state.toastMessage);
-        }
-    }, [dispatch, location.state]);
+
+    }, [dispatch]);
     const handleDeleteAcc = (id) => {
         dispatch(deleteUserById(id))
             .then(() => {
@@ -32,7 +31,18 @@ export function Account() {
                 toast.error("Failed to delete user. Please try again.");
             });
     }
-
+    useEffect(() => {
+        const message = location.state?.message;
+        const style = location.state?.style;
+        if (message) {
+            toast.dismiss();
+            if (style === "success") {
+                toast.success(message);
+            } else {
+                toast.error(message);
+            }
+        }
+    }, [location.state]);
     const handleEditAcc = (id) => {
         navigate(`edit/${id}`);
     }

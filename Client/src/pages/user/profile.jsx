@@ -1,16 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import { useNavigate } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import userProfile from "/public/img/user-profile.jpg";
 import {useDispatch, useSelector} from "react-redux";
-import { fetchUserById, updateUserImg} from "@/redux/Thunk/user.js";
+import { fetchUserById} from "@/redux/Thunk/user.js";
 import AuthIdUser from "@/configs/AuthIdUser.js";
 import Instance from "@/configs/instance.js";
+import {toast, ToastContainer} from "react-toastify";
 
 function Profile() {
     const navigate = useNavigate();
     const [showForm, setShowForm] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-
+    const location= useLocation()
     const id = AuthIdUser();
     const dispatch = useDispatch();
     const { contents: user, isLoading, error } = useSelector(state => state.user);
@@ -19,6 +20,18 @@ function Profile() {
             dispatch(fetchUserById(id));
         }
     }, [dispatch,id]);
+    useEffect(() => {
+        const message = location.state?.message;
+        const style = location.state?.style;
+        if (message) {
+            toast.dismiss();
+            if (style === "success") {
+                toast.success(message);
+            } else {
+                toast.error(message);
+            }
+        }
+    }, [location.state]);
     const handleShowForm = () => {
         setShowForm(true);
     };
@@ -28,18 +41,27 @@ function Profile() {
     };
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+        if (!selectedImage) {
+            toast.error("Please select an image to upload.");
+            return;
+        }
         try {
             const formData = new FormData();
             formData.append('Img', selectedImage);
+
             await Instance.put(`/api/User/UpImg-Profile/${id}`, formData);
+            toast.success("Update Image success");
             setShowForm(false);
-            await dispatch(fetchUserById(id))
+            await dispatch(fetchUserById(id));
         } catch (err) {
+            toast.error("Update Image failed");
             console.error("An error occurred while updating profile image:", err);
         }
     };
+
     return (
         <div className="bg-gray-100">
+            <ToastContainer/>
             <div className="container mx-auto py-8">
                 <div className="grid grid-cols-4 sm:grid-cols-12 gap-6 px-4">
                     <div className="col-span-4 sm:col-span-3">

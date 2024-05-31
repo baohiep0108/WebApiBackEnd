@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteOrder, fetchOrderForUser } from "@/redux/Thunk/order.js";
@@ -9,9 +9,12 @@ function Order() {
     const dispatch = useDispatch();
     const { contents: order, isLoading, error } = useSelector(state => state.order);
     const [searchTerm, setSearchTerm] = useState('');
+
     useEffect(() => {
         dispatch(fetchOrderForUser());
     }, [dispatch]);
+
+    const sortedOrder = [...order].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
     const handleDeleteOrder = async (id) => {
         try {
@@ -69,7 +72,7 @@ function Order() {
 
                     <div className="mt-6 flow-root sm:mt-8">
                         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                            {order.map((orderItem) => (
+                            {sortedOrder.map((orderItem) => (
                                 <div key={orderItem.id} className="flex flex-wrap items-center gap-y-4 py-6">
                                     <dl className="w-1/2 sm:w-1/4 lg:w-auto lg:flex-1">
                                         <dt className="text-base font-medium text-gray-500 dark:text-gray-400">Order ID:</dt>

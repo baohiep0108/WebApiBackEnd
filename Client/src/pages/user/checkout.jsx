@@ -15,9 +15,7 @@ function Checkout() {
     const [address, setAddress] = useState("");
     const [orderDescription, setOrderDescription] = useState("");
     const [payWithCard, setPayWithCard] = useState(true);
-
     const { contents: cart, isLoading, error } = useSelector((state) => state.cart);
-
     useEffect(() => {
         dispatch(fetchCart());
     }, [dispatch]);
@@ -33,7 +31,6 @@ function Checkout() {
         });
         setTotalPrice(total);
     };
-
     const totalProduct = (quantity, price) => {
         return quantity * price;
     }
@@ -53,7 +50,6 @@ function Checkout() {
                 phoneNumber: phoneNumber,
                 address: address,
             };
-
             try {
                 const response = await Instance.post("/api/Payment", data);
                 window.location.href = response.data;
@@ -63,15 +59,13 @@ function Checkout() {
         } else {
             try {
                 await dispatch(placeOrder());
-                await dispatch(fetchCart());
                 toast.success("Order placed successfully");
+                navigate("/home", { state: { message: "Order Success", style: "success" } })
             } catch (err) {
                 toast.error("Order placement failed");
             }
         }
     }
-
-
     return (
         <div>
             <ToastContainer/>

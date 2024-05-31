@@ -1,6 +1,5 @@
     import { createAsyncThunk } from "@reduxjs/toolkit";
     import Instance from "@/configs/instance.js";
-
     export const fetchCategory = createAsyncThunk(
         'category/fetchCategory',
         async () => {
@@ -8,7 +7,6 @@
             return res.data;
         }
     );
-
     export const fetchCategoryById = createAsyncThunk(
         'category/fetchCategoryById',
         async (id) => {
@@ -24,7 +22,6 @@
             return response.data;
         }
     );
-
     export const editCategory = createAsyncThunk(
         'category/editCategory',
         async ({ id, categoryData }) => {

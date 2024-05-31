@@ -22,12 +22,10 @@ export function DashboardNavbar() {
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
-
     const handleLogout = () => {
       localStorage.removeItem('token');
-      delete axios.defaults.headers.common['Authorization'];
+      delete axios.defaults.headers.Authorization;
     };
-
   return (
       <Navbar
           color={fixedNavbar ? "white" : "transparent"}

@@ -9,19 +9,16 @@ function EditOrder() {
     const { id } = useParams();
     const [orderStatus, setOrderStatus] = useState('');
     const dispatch= useDispatch();
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             await dispatch(UpdateOrder({ orderId: id, status: orderStatus }));
             toast.success("Order updated successfully!");
-            navigate("/dashboard/order");
+            navigate("/dashboard/order", { state: { message: "Edit Order Success", style: "success" } });
         } catch (err) {
             toast.error("Order update failed!");
         }
     }
-
-
     const handleStatusChange = (e) => {
         setOrderStatus(e.target.value);
     }

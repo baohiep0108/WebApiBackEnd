@@ -79,13 +79,6 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddDistributedMemoryCache();
 
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(60);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
 var app = builder.Build();
 
 
@@ -105,7 +98,6 @@ app.UseRouting();
 app.UseHttpsRedirection();
 
 app.UseHttpsRedirection();
-app.UseSession();
 app.UseAuthorization();
 
 app.MapControllers();

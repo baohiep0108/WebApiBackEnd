@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategory } from '@/redux/Thunk/category.js';
-import { fetchProductById } from '@/redux/Thunk/product.js';
 import { toast } from 'react-toastify';
 import Instance from '@/configs/instance.js';
-
 export function EditProduct() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -14,15 +12,26 @@ export function EditProduct() {
     const [price, setPrice] = useState('');
     const [details, setDetails] = useState('');
     const [file, setFile] = useState(null);
+    const [product,setProduct]= useState('')
     const [getCategory, setCategory] = useState('');
     const { contents: category, isLoading, error: categoryError } = useSelector(state => state.category);
-    const { contents: product, isPrLoading, error: productError } = useSelector(state => state.product);
 
     useEffect(() => {
-        dispatch(fetchCategory());
-        dispatch(fetchProductById(id));
+        const fetchData = async () => {
+            await dispatch(fetchCategory());
+            await fetchProduct(id);
+        };
+        fetchData().catch((err)=>console.log(err));
     }, [dispatch, id]);
-
+    const fetchProduct = async (id) => {
+        try {
+            const response = await Instance.get(`/api/Product/GetById/${id}`);
+            const data = response.data;
+            setProduct(data);
+        } catch (error) {
+            console.log("Error fetching product:", error);
+        }
+    };
     useEffect(() => {
         if (product) {
             setProductName(product.productName || '');
@@ -44,7 +53,7 @@ export function EditProduct() {
             const response = await Instance.put(`/api/Product/Update/${id}`, formData);
             if (response.status === 200) {
                 toast.success("Product updated successfully!");
-                navigate("/dashboard/product");
+                navigate("/dashboard/product",{ state: { message: "Edit Product Success", style: "success" } });
             } else {
                 toast.error("Failed to update product. Please try again.");
             }

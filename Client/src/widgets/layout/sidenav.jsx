@@ -16,7 +16,6 @@ export function Sidenav({ brandImg, brandName, routes }) {
     white: "bg-white shadow-sm",
     transparent: "bg-transparent",
   };
-
   return (
     <aside
       className={`${sidenavTypes[sidenavType]} ${

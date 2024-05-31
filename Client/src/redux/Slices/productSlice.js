@@ -3,9 +3,8 @@ import {
     fetchProduct,
     fetchProductByCategory,
     fetchProductById,
-    fetchProductImg,
     addProduct,
-    deleteProduct
+    deleteProduct,
 } from "@/redux/Thunk/product.js";
 
 const initialState = {
@@ -53,17 +52,6 @@ export const productSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
-            .addCase(fetchProductImg.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(fetchProductImg.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.contents = action.payload;
-            })
-            .addCase(fetchProductImg.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.error.message;
-            })
             .addCase(addProduct.pending, (state) => {
                 state.isLoading = true;
             })
@@ -86,7 +74,6 @@ export const productSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
-
     },
 });
 

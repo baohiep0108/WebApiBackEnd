@@ -1,15 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
     fetchAllUser,
-    fetchUserImg,
     fetchUserByRole,
     fetchUserById,
     updateUserById,
     deleteUserById,
     createUser,
     createAdmin,
-    updateUserImg,
-    updateUserProfile
 } from "@/redux/Thunk/user.js";
 
 const initialState = {
@@ -32,17 +29,6 @@ export const userSlice = createSlice({
                 state.contents = action.payload;
             })
             .addCase(fetchAllUser.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.error.message;
-            })
-            .addCase(fetchUserImg.fulfilled, (state, action) => {
-                state.isLoading = false;
-                const userIndex = state.contents.findIndex(user => user.name === action.meta.arg);
-                if (userIndex !== -1) {
-                    state.contents[userIndex].img = action.payload;
-                }
-            })
-            .addCase(fetchUserImg.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;
             })
@@ -73,9 +59,10 @@ export const userSlice = createSlice({
             })
             .addCase(updateUserById.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const userIndex = state.contents.findIndex(user => user.id === action.meta.arg.id);
-                if (userIndex !== -1) {
-                    state.contents[userIndex] = action.payload;
+                const updatedUser = action.payload;
+                const index = state.contents.findIndex(user => user.id === updatedUser.id);
+                if (index !== -1) {
+                    state.contents[index] = updatedUser;
                 }
             })
             .addCase(updateUserById.rejected, (state, action) => {
@@ -115,34 +102,8 @@ export const userSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
-            .addCase(updateUserImg.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(updateUserImg.fulfilled, (state, action) => {
-                state.isLoading = false;
-                const userIndex = state.contents.findIndex(user => user.id === action.meta.arg.id);
-                if (userIndex !== -1) {
-                    state.contents[userIndex].img = action.payload;
-                }
-            })
-            .addCase(updateUserImg.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.error.message;
-            })
-            .addCase(updateUserProfile.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(updateUserProfile.fulfilled, (state, action) => {
-                state.isLoading = false;
-                const userIndex = state.contents.findIndex(user => user.id === action.meta.arg.id);
-                if (userIndex !== -1) {
-                    state.contents[userIndex] = action.payload;
-                }
-            })
-            .addCase(updateUserProfile.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.error.message;
-            });
+
+
     },
 });
 

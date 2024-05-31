@@ -7,20 +7,23 @@ import productImg from "/public/img/productImg.png";
 
 export function Cart() {
     const [totalPrice, setTotalPrice] = useState(0);
+    const [productTotalPrices, setProductTotalPrices] = useState({});
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { contents: cart, isLoading, error } = useSelector(state => state.cart);
+
     useEffect(() => {
         dispatch(fetchCart());
     }, [dispatch]);
 
     useEffect(() => {
         calculateTotalPrice();
+        calculateProductTotalPrices();
     }, [cart]);
 
     const updateCarts = async (productId, quantity) => {
-        if(quantity>20){
-            return quantity===20
+        if (quantity > 20) {
+            return quantity === 20;
         }
         try {
             if (quantity === 0) {
@@ -34,11 +37,16 @@ export function Cart() {
         }
     };
 
-    const calculateTotalPrice = () => {
-        let total = 0;
+    const calculateProductTotalPrices = () => {
+        const productTotals = {};
         cart.forEach(item => {
-            total += item.products.productPrice * item.quantity;
+            productTotals[item.products.productId] = item.products.productPrice * item.quantity;
         });
+        setProductTotalPrices(productTotals);
+    };
+
+    const calculateTotalPrice = () => {
+        const total = cart.reduce((sum, item) => sum + item.products.productPrice * item.quantity, 0);
         setTotalPrice(total);
     };
 
@@ -55,9 +63,7 @@ export function Cart() {
         await dispatch(deleteCart(id));
         toast.success("Delete Product success");
         await dispatch(fetchCart());
-
     };
-
     return (
         <div className="py-24 relative">
             <ToastContainer/>
@@ -79,10 +85,14 @@ export function Cart() {
                         <h2 className="title font-manrope font-bold text-4xl leading-10 mb-8 text-center text-black">Cart</h2>
                         <form onSubmit={handleSubmit}>
                             {cart.map((item) => (
-                                <div className="rounded-3xl border-2 border-gray-200 p-4 lg:p-8 grid grid-cols-12 mb-8 max-lg:max-w-lg max-lg:mx-auto gap-y-4" key={item.products.productId}>
+                                <div
+
+                                    className="rounded-3xl border-2 border-gray-200 p-4 lg:p-8 grid grid-cols-12 mb-8 max-lg:max-w-lg max-lg:mx-auto gap-y-4" key={item.products.productId}>
                                     <div className="col-span-12 lg:col-span-2 img box">
                                         <img src={item.products.img ? `${import.meta.env.VITE_PUBLIC_IMG_URL}/api/Product/GetImage?name=${item.products.img}` : productImg} alt="product image" className="max-lg:w-full lg:w-[180px]" />
                                     </div>
+
+
                                     <div className="col-span-12 lg:col-span-10 detail w-full lg:pl-3">
                                         <div className="flex items-center justify-between w-full mb-4">
                                             <h5 className="font-manrope font-bold text-2xl leading-9 text-gray-900">{item.products.productName}</h5>
@@ -114,7 +124,7 @@ export function Cart() {
                                                     </svg>
                                                 </button>
                                             </div>
-                                            <h6 className="text-indigo-600 font-manrope font-bold text-2xl leading-9 text-right">{(item.products.productPrice)}đ</h6>
+                                            <h6 className="text-indigo-600 font-manrope font-bold text-2xl leading-9 text-right">{productTotalPrices[item.products.productId]}đ</h6>
                                         </div>
                                     </div>
                                 </div>

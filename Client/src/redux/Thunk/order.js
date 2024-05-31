@@ -38,7 +38,6 @@ export const OrderProduct = createAsyncThunk(
         return res.data;
     }
 );
-
 export const UpdateOrder = createAsyncThunk(
     'order/UpdateOrder',
     async ({ orderId, status }) => {

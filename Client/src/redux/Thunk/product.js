@@ -25,14 +25,6 @@ export const fetchProductById = createAsyncThunk(
     }
 );
 
-export const fetchProductImg = createAsyncThunk(
-    'product/fetchProductImg',
-    async (name) => {
-        const res = await Instance.get(`/api/Product/GetImage?name=${name}`);
-        return res.data;
-    }
-);
-
 export const addProduct = createAsyncThunk(
     'product/addProduct',
     async (productData) => {
@@ -40,7 +32,6 @@ export const addProduct = createAsyncThunk(
         return response.data;
     }
 );
-
 
 export const deleteProduct = createAsyncThunk(
     'product/deleteProduct',

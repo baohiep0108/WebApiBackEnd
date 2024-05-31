@@ -8,7 +8,6 @@ export const fetchComment = createAsyncThunk(
         return response.data;
     }
 );
-
 export const feedbackComment = createAsyncThunk(
     'comment/feedback',
     async ({ id, data }) => {
@@ -16,7 +15,6 @@ export const feedbackComment = createAsyncThunk(
         return response.data;
     }
 );
-
 export const deleteFeedback = createAsyncThunk(
     'comment/deleteFeedback',
     async (id) => {

@@ -3,18 +3,35 @@ import Instance from "@/configs/instance.js";
 import { Spinner } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
 import {fetchCategory} from "@/redux/Thunk/category.js";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {AddCart, fetchCart} from "@/redux/Thunk/cart.js";
 import {toast, ToastContainer} from "react-toastify";
 
 function Product() {
     const navigate= useNavigate()
     const [products, setProducts] = useState([]);
+    const location  = useLocation()
     const dispatch = useDispatch();
+    useEffect(() => {
+        const message = location.state?.message;
+        const style = location.state?.style;
+        if (message) {
+            toast.dismiss();
+            if (style === "success") {
+                toast.success(message);
+            } else {
+                toast.error(message);
+            }
+        }
+    }, [location.state]);
+
     const { contents: category, isLoading, error } = useSelector(state => state.category);
     useEffect(() => {
         dispatch(fetchCategory());
     }, [dispatch]);
+
+
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {

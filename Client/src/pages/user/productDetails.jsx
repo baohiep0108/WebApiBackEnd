@@ -6,7 +6,7 @@ import { fetchProductById } from "@/redux/Thunk/product.js";
 import { OrderProduct } from "@/redux/Thunk/order.js";
 import { AddCart, fetchCart } from "@/redux/Thunk/cart.js";
 import productImg from "/public/img/productImg.png";
-import { feedbackComment, fetchComment } from "@/redux/Thunk/comment.js";
+import {deleteFeedback, feedbackComment, fetchComment} from "@/redux/Thunk/comment.js";
 import userProfile from "../../../public/img/user-profile.jpg";
 import { Textarea } from "@material-tailwind/react";
 
@@ -17,7 +17,7 @@ function ProductDetails() {
     const [hideCommentsButtonVisible, setHideCommentsButtonVisible] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const dispatch = useDispatch();
-    const [star, setStar] = useState('');
+    const [star, setStar] = useState(3);
     const [comment, setComment] = useState('');
     const { contents: feedback, isFeedBackLoading, FBError } = useSelector(state => state.feedback);
     const { contents: product, isPrLoading, PrError } = useSelector(state => state.product);
@@ -29,11 +29,10 @@ function ProductDetails() {
     useEffect(() => {
         dispatch(fetchComment(id));
     }, [id]);
-
-    const BuyNow = async () => {
-        await dispatch(OrderProduct(id));
-        navigate("/home/checkOut");
-    };
+    const handleDeleteComment=async (feedbackId)=>{
+       await dispatch(deleteFeedback(feedbackId));
+        await dispatch(fetchComment(id));
+    }
 
     const handleSubmitComment = async (e) => {
         e.preventDefault();
@@ -145,27 +144,34 @@ function ProductDetails() {
                     </div>
                 </div>
 
+
+
                 <div className="mt-16 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] p-6">
                     <h3 className="text-lg font-bold text-[#333]">Reviews ({feedback.length})</h3>
                     <div className="grid md:grid-cols-1 gap-12 mt-6">
                         {showAllComments ?
                             feedback.map((feedbackItem, index) => (
+
                                 <div key={index} className="flex items-start">
+
                                     <img
                                         alt="img"
                                         src={feedbackItem.imgProfile ? `${import.meta.env.VITE_PUBLIC_IMG_URL}/api/User/GetImage?name=${feedbackItem.imgProfile}` : userProfile}
-                                        className="w-12 h-12 rounded-full border-2 border-white" />
+                                        className="w-12 h-12 rounded-full border-2 border-white"/>
                                     <div className="ml-3">
+
                                         <h4 className="text-sm font-bold text-[#333]">{feedbackItem.userName}</h4>
                                         <div className="flex space-x-1 mt-1">
+
                                             {[...Array(feedbackItem.start)].map((_, i) => (
                                                 <svg key={i} className="w-4 fill-[#333]" viewBox="0 0 14 13" fill="none"
                                                      xmlns="http://www.w3.org/2000/svg">
                                                     <path
-                                                        d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
+                                                        d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z"/>
                                                 </svg>
                                             ))}
                                         </div>
+
                                         <p className="text-sm mt-4 text-[#333]">{feedbackItem.comment}</p>
                                     </div>
                                 </div>
@@ -173,10 +179,19 @@ function ProductDetails() {
                             :
                             feedback.slice(0, 2).map((feedbackItem, index) => (
                                 <div key={index} className="flex items-start">
+
                                     <img
                                         src={feedbackItem.imgProfile ? `${import.meta.env.VITE_PUBLIC_IMG_URL}/api/User/GetImage?name=${feedbackItem.imgProfile}` : userProfile}
                                         alt="img profile"
-                                        className="w-12 h-12 rounded-full border-2 border-white" />
+                                        className="w-12 h-12 rounded-full border-2 border-white"/>
+
+                                    <button
+                                        onClick={()=>handleDeleteComment(feedbackItem.feedBackId)}
+                                        type="button">
+                                    <span className="absolute transform hover:bg-gray-300 p-2 rounded-full right-36">
+                                        <i className="fas fa-trash-alt" aria-hidden="true"></i>
+                                    </span>
+                                    </button>
                                     <div className="ml-3">
                                         <h4 className="text-sm font-bold text-[#333]">{feedbackItem.userName}</h4>
                                         <div className="flex space-x-1 mt-1">
@@ -184,7 +199,7 @@ function ProductDetails() {
                                                 <svg key={i} className="w-4 fill-[#333]" viewBox="0 0 14 13" fill="none"
                                                      xmlns="http://www.w3.org/2000/svg">
                                                     <path
-                                                        d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
+                                                        d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z"/>
                                                 </svg>
                                             ))}
                                         </div>

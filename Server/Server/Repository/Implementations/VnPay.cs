@@ -51,8 +51,8 @@ namespace Server.Repository.Implementations
                     vnpay.AddResponseData(key, value);
                 }
             }
-            var vnp_orderId = Convert.ToInt64(vnpay.GetResponseData("TxnRef"));
-            var vnp_TransactionId = Convert.ToInt64(vnpay.GetResponseData("vnp_TransactionNo"));
+            var vnp_orderId = vnpay.GetResponseData("TxnRef");
+            var vnp_TransactionId = vnpay.GetResponseData("vnp_TransactionNo");
             var vnp_SecureHash = collections.FirstOrDefault(p => p.Key == "vnp_SecureHash").Value;
             var vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
             var vnp_OrderInfo = vnpay.GetResponseData("vnp_OrderInfo");

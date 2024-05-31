@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { toast, ToastContainer } from "react-toastify";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteOrder, fetchOrder } from "@/redux/Thunk/order.js";
 import { deleteCategory } from "@/redux/Thunk/category.js";
@@ -11,12 +11,25 @@ export function Order() {
     const { contents: order, isLoading, error } = useSelector(state => state.order);
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const location= useLocation()
 
 
     useEffect(() => {
         dispatch(fetchOrder());
     }, [dispatch]);
 
+    useEffect(() => {
+        const message = location.state?.message;
+        const style = location.state?.style;
+        if (message) {
+            toast.dismiss();
+            if (style === "success") {
+                toast.success(message);
+            } else {
+                toast.error(message);
+            }
+        }
+    }, [location.state]);
     const handleDeleteOrder = async (productId, orderId) => {
         try {
             await dispatch(deleteOrder({ productId, orderId })).unwrap();
@@ -30,6 +43,8 @@ export function Order() {
         return order.userEmail.toLowerCase().includes(searchTerm.toLowerCase());
     });
     return (
+        <>
+            <ToastContainer/>
         <div className="mt-12 mb-8 flex flex-col gap-12">
             <div className="flex justify-between items-center mb-4">
                 <div>
@@ -63,7 +78,7 @@ export function Order() {
                         </tr>
                         </thead>
                         <tbody>
-                        <ToastContainer/>
+
                         {filteredOrder.map((order, index) => (
                             <tr key={order.orderId}>
                                 <td className="border-b border-blue-gray-50 py-3 px-5">
@@ -78,7 +93,7 @@ export function Order() {
                                 </td>
                                 <td className="border-b border-blue-gray-50 py-3 px-5">
                                     <Typography className="text-xs font-semibold text-blue-gray-600">
-                                        {order.price}
+                                        {order.price}đ
                                     </Typography>
                                 </td>
 
@@ -113,6 +128,7 @@ export function Order() {
                 </CardBody>
             </Card>
         </div>
+        </>
     );
 }
 

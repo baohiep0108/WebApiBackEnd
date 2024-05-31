@@ -50,7 +50,7 @@ function OrderDetails() {
                                     <div className="flex justify-between space-x-8 items-start w-full">
                                         <p className="text-base xl:text-lg leading-6">{item.price}đ</p>
                                         <p className="text-base xl:text-lg leading-6 text-gray-800">{item.quantity}</p>
-                                        <p className="text-base xl:text-lg font-semibold leading-6 text-gray-800">${item.price * item.quantity}</p>
+                                        <p className="text-base xl:text-lg font-semibold leading-6 text-gray-800">{item.price * item.quantity}đ</p>
                                     </div>
                                 </div>
                             </div>
@@ -79,7 +79,7 @@ function OrderDetails() {
                                 <h3 className="text-xl font-semibold leading-5 text-gray-800">Summary</h3>
                                 <div className="flex justify-between items-center w-full">
                                     <p className="text-base font-semibold leading-4 text-gray-800">Total</p>
-                                    <p className="text-base font-semibold leading-4 text-gray-600">${totalPrice}</p>
+                                    <p className="text-base font-semibold leading-4 text-gray-600">{totalPrice}đ</p>
                                 </div>
                             </div>
                         </div>

@@ -58,7 +58,6 @@ function CreateProduct() {
         } else {
             newErrors.file = '';
         }
-
         setErrors(newErrors);
         return valid;
     };
@@ -78,7 +77,7 @@ function CreateProduct() {
         formData.append('img', file);
         try {
             await dispatch(addProduct(formData));
-            navigate("/dashboard/product");
+            navigate("/dashboard/product", { state: { message: "Create Product Success", style: "success" } });
             toast.success("Product created successfully!");
         } catch (error) {
             console.log(error);

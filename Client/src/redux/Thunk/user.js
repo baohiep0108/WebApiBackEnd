@@ -8,21 +8,8 @@ export const fetchAllUser = createAsyncThunk(
         return res.data;
     }
 );
-export const fetchUserImg = createAsyncThunk(
-    'user/fetchUserImg',
-    async (name) => {
-        const res = await Instance.get(`/api/User/GetImage?name=${name}`);
-        return res.data;
-    }
-);
 
-export const loginUser = createAsyncThunk(
-    'user/loginUser',
-    async (data) => {
-        const res = await Instance.post(`/api/Authenticate/login`, data);
-        return res.data;
-    }
-);
+
 
 export const fetchUserByRole = createAsyncThunk(
     'user/fetchUserByRole',
@@ -55,7 +42,6 @@ export const deleteUserById = createAsyncThunk(
         return res.data;
     }
 );
-
 export const createUser = createAsyncThunk(
     'user/createUser',
     async (data) => {
@@ -63,27 +49,10 @@ export const createUser = createAsyncThunk(
         return res.data;
     }
 );
-
 export const createAdmin = createAsyncThunk(
     'user/createAdmin',
     async (data) => {
         const res = await Instance.post(`/api/Authenticate/register-admin`, data);
-        return res.data;
-    }
-);
-
-export const updateUserImg = createAsyncThunk(
-    'user/updateUserImg',
-    async ({ id, data }) => {
-        const res = await Instance.put(`/api/User/UpdateProfile/${id}`, data);
-        return res.data;
-    }
-);
-
-export const updateUserProfile = createAsyncThunk(
-    'user/updateUserProfile',
-    async ({ id, data }) => {
-        const res = await Instance.put(`/api/User/UpImg-Profile/${id}`, data);
         return res.data;
     }
 );

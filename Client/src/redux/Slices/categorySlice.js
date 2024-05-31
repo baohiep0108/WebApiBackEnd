@@ -54,7 +54,7 @@ export const categorySlice = createSlice({
             })
             .addCase(editCategory.fulfilled, (state, action) => {
                 state.isLoading = false;
-                const index = state.contents.findIndex(category => category.categoryId === action.meta.arg.categoryId);
+                const index = state.contents.findIndex(category => category.categoryId === action.payload.categoryId);
                 if (index !== -1) {
                     state.contents[index] = action.payload;
                 }
